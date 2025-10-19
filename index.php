@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-commerce</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
+<?php
+require_once 'getHeader.php';
+echo getPageHead('E-commerce');
+?>
 
 <body>
     <?php
@@ -16,9 +14,13 @@
     else
         echo "you are not authenticated";
     ?>
-    <div>
+    <div class="bg-red-500">
         <a class="hover:text-red-500" href="./views/handle-logout.php">Logout</a>
     </div>
+    <?php
+    require_once 'getScripts.php';
+    echo getScripts();
+    ?>
 </body>
 
 </html>

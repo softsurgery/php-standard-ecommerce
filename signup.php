@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign-up</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
+<?php
+    require_once 'getHeader.php';
+    echo getPageHead('Sign-up');
+?>
+
 <body>
     <section class="bg-gray-50 dark:bg-gray-900">
   <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -42,7 +41,7 @@
                   </div>
                   <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800" onclick="console.log('i got clicked')">Create an account</button>
                   <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                      Already have an account? <a href="signin.html" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Login here</a>
+                      Already have an account? <a href="signin.php" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Login here</a>
                   </p>
               </form>
           </div>
