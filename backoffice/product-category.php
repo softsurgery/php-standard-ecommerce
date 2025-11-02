@@ -3,8 +3,11 @@
 
 <?php
 require_once '../getHeader.php';
+require_once '../ui/drawer.php';
+require_once '../ui/button.php';
 echo getPageHead('Product Category');
 ?>
+
 <body>
     <div class="flex flex-1 overflow-hidden h-screen">
         <!-- Sidebar -->
@@ -20,6 +23,16 @@ echo getPageHead('Product Category');
             ?>
             <main class="flex flex-col flex-1 p-5 bg-gray-300 overflow-y-auto overflow-x-hidden">
                 <div class="relative">
+                    <!-- Drawer Trigger -->
+                    <!-- drawer init and toggle -->
+                    <div class="text-center">
+                        
+                        <?php renderButton('Add Product Category', $variant = 'green', $attrs = [
+                            'aria-controls' => 'drawer-example',
+                            'data-drawer-target' => 'drawer-example',
+                            'data-drawer-show' => 'drawer-example'
+                        ]) ?>
+                    </div>
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <tr>
@@ -56,109 +69,19 @@ echo getPageHead('Product Category');
                         </tbody>
                     </table>
                 </div>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
-                <h1>Hello</h1>
             </main>
         </div>
     </div>
+
+    
+    <?php
+    renderDrawer(
+        'drawer-example',
+        'Help Menu',
+        '<p>This is a dynamic drawer content.</p>'
+    );
+    ?>
+
     <?php
     require_once '../getScripts.php';
     echo getScripts();
