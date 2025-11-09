@@ -1,8 +1,9 @@
 <?php
-function renderDrawer($id, $title = '', $content = '') {
+function renderDrawer($class, $id, $title = '', $content = '' , $side = 'left') {
+    $sideClass = $side == 'left'? 'left-0 -translate-x-full' : 'right-0 translate-x-full';
 ?>
 <div id="<?= htmlspecialchars($id) ?>"
-    class="fixed top-0 left-0 z-40 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-white w-80 dark:bg-gray-800"
+    class="fixed top-0 <?php echo $sideClass ?> z-40 h-screen p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 <?php echo $class ?>"
     tabindex="-1" aria-labelledby="<?= htmlspecialchars($id) ?>-label">
     
     <h5 id="<?= htmlspecialchars($id) ?>-label"
@@ -15,7 +16,7 @@ function renderDrawer($id, $title = '', $content = '') {
         <?= htmlspecialchars($title) ?>
     </h5>
 
-    <button type="button" data-drawer-hide="<?= htmlspecialchars($id) ?>" aria-controls="<?= htmlspecialchars($id) ?>"
+    <button id="<?= htmlspecialchars($id) . "-x" ?>" type="button" data-drawer-hide="<?= htmlspecialchars($id) ?>" aria-controls="<?= htmlspecialchars($id) ?>"
         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 absolute top-2.5 end-2.5 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white">
         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
             fill="none" viewBox="0 0 14 14">

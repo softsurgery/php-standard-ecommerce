@@ -2,11 +2,12 @@
 /**
  * Renders a Tailwind-style button dynamically.
  *
- * @param string $label The text inside the button.
+ * @param string $label  The text inside the button.
  * @param string $variant The visual style (e.g. 'default', 'alternative', 'dark', 'light', 'green', 'red', 'yellow', 'purple').
- * @param array $attrs Additional HTML attributes like ['id' => 'saveBtn', 'type' => 'submit'].
+ * @param array  $attrs  Additional HTML attributes like ['id' => 'saveBtn', 'type' => 'submit'].
  */
-function renderButton($label, $variant = 'default', $attrs = []) {
+function renderButton($label, $variant = 'default', $attrs = [])
+{
     // Variants with Tailwind CSS classes
     $variants = [
         'default' => 'text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800',
@@ -19,15 +20,20 @@ function renderButton($label, $variant = 'default', $attrs = []) {
         'purple' => 'focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900',
     ];
 
-    // Default fallback
+    // Select variant or fallback
     $class = $variants[$variant] ?? $variants['default'];
 
-    // Merge extra attributes
+    // ✅ If no attributes provided, or no "type" specified, add type="button"
+    if (empty($attrs) || !array_key_exists('type', $attrs)) {
+        $attrs['type'] = 'button';
+    }
+
+    // Build HTML attributes string safely
     $attrString = '';
     foreach ($attrs as $key => $value) {
         $attrString .= sprintf(' %s="%s"', htmlspecialchars($key), htmlspecialchars($value));
     }
 
-    echo sprintf('<button type="button" class="%s"%s>%s</button>', $class, $attrString, htmlspecialchars($label));
+    echo sprintf('<button class="%s"%s>%s</button>', $class, $attrString, htmlspecialchars($label));
 }
 ?>

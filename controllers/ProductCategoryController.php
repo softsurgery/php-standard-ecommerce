@@ -21,14 +21,20 @@ class ProductCategoryController
     public function save($category)
     {
         global $pdo;
+
         $sql = "INSERT INTO `product-category` (label, description)
-                VALUES (:label, :description)";
+            VALUES (:label, :description)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':label' => $category->getLabel(),
                 ':description' => $category->getDescription()
             ]);
+
+            // ✅ Get the last inserted ID
+            $lastId = $pdo->lastInsertId();
+
+            return $this->getById($lastId);
         } catch (Exception $e) {
             die("Erreur lors de l'enregistrement : " . $e->getMessage());
         }

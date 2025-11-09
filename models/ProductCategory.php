@@ -46,5 +46,14 @@ class ProductCategory
         $this->description = $description;
     }
 
+
+    function toArray() {
+        return [
+            'id' => $this->id,
+            'label' => $this->label,
+            'description' => $this->description
+        ];
+    }
+
 }
 ?>
