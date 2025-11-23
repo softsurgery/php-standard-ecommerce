@@ -6,6 +6,7 @@
 
 require_once __DIR__ . '/../shared/getHeader.php';
 require_once __DIR__ . '/../shared/ui/drawer.php';
+require_once __DIR__ . '/../shared/ui/dialog.php';
 require_once __DIR__ . '/../shared/ui/button.php';
 require_once __DIR__ . '/../shared/ui/pagination.php';
 require_once __DIR__ . '/product-category.create-form.php';
@@ -76,10 +77,10 @@ echo getPageHead('Product Category', '../..');
                                                     'data-description' => htmlspecialchars($category['description'])
                                                 ]) ?>
                                                 <?php renderButton('Delete', 'red', [
-                                                    'aria-controls' => 'drawer-example',
-                                                    'data-drawer-target' => 'drawer-example',
-                                                    'data-drawer-show' => 'drawer-example',
-                                                    'data-drawer-placement' => "right"
+                                                    'data-modal-target' => 'delete-modal',
+                                                    'data-modal-show' => 'delete-modal',
+                                                    'data-category-id' => $category['id'],
+                                                    'data-category-label' => htmlspecialchars($category['label']),
                                                 ]) ?>
                                             </div>
                                         </td>
@@ -155,6 +156,14 @@ echo getPageHead('Product Category', '../..');
         $updateForm,
         'right'
     );
+
+    $content = '<p id="delete-modal-body">Are you sure you want to delete this category?</p>';
+    $footer = [
+        ['label' => 'Accept', 'class' => 'text-white bg-green-600 hover:bg-green-700', 'attrs' => ['id' => 'delete-confirm', 'data-modal-hide' => 'delete-modal']],
+        ['label' => 'Decline', 'class' => 'text-gray-700 bg-gray-200 hover:bg-gray-300', 'attrs' => ['data-modal-hide' => 'delete-modal']],
+    ];
+
+    renderModal('delete-modal', 'Delete Category', $content, $footer, 'max-w-2xl');
     ?>
 
 
@@ -163,6 +172,7 @@ echo getPageHead('Product Category', '../..');
     require_once __DIR__ . '/../shared/getScripts.php';
     echo getScripts('../..');
     ?>
+    <!-- populate update modal -->
     <script>
         document.querySelectorAll('[data-drawer-target="update-drawer"]').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -178,6 +188,40 @@ echo getPageHead('Product Category', '../..');
         });
     </script>
 
+    <!-- prepare delete modal -->
+    <script>
+        const origin = './views/backoffice/product-category.php';
+        document.querySelectorAll('[data-modal-show]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-target');
+                const modal = document.getElementById(modalId);
+
+                // Populate modal content
+                const categoryLabel = btn.getAttribute('data-category-label');
+                const categoryId = btn.getAttribute('data-category-id');
+                const body = modal.querySelector('#delete-modal-body');
+                body.textContent = `Are you sure you want to delete the category "${categoryLabel}"?`;
+
+                // Set confirm button action
+                const confirmBtn = modal.querySelector('#delete-confirm');
+                confirmBtn.onclick = function() {
+                    window.location.href = `../product-category/handle-delete.php?id=${categoryId}&origin=../../${origin}`;
+                };
+
+                // Show modal
+                modal.classList.remove('hidden');
+            });
+        });
+
+        // Close modal buttons
+        document.querySelectorAll('[data-modal-hide]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-hide');
+                const modal = document.getElementById(modalId);
+                modal.classList.add('hidden');
+            });
+        });
+    </script>
 </body>
 
 </html>

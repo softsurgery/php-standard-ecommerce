@@ -10,7 +10,7 @@ $origin = $_POST['origin'] ?? '';
 
 
 if (empty($label)) {
-    echo json_encode(['success' => false, 'message' => 'Label required']);
+    header('Location: ../../' . $origin . '?success=false&message=Label required!');
     exit;
 }
 
