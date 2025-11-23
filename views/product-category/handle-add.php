@@ -2,9 +2,9 @@
 
     header('Content-Type: application/json');
 
-    require_once '../controllers/ProductCategoryController.php';
-    require_once '../models/ProductCategory.php';
-    require_once '../lib/error.php';
+    require_once '../../controllers/ProductCategoryController.php';
+    require_once '../../models/ProductCategory.php';
+    require_once '../../lib/error.php';
     $controller = new ProductCategoryController();
 
     $label = $_POST['label'] ?? '';

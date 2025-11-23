@@ -1,9 +1,53 @@
 <?php
-include '../config.php';
-include_once '../models/ProductCategory.php';
+include __DIR__ .'/../config.php';
+include_once __DIR__ . '/../models/ProductCategory.php';
 
 class ProductCategoryController
 {
+
+     /**
+     * Get paginated categories
+     * @param int $page Current page number (1-based)
+     * @param int $pageSize Number of items per page
+     * @return array ['data' => [...], 'meta' => ['page'=>..., 'size'=>..., 'pageCount'=>..., 'hasNextPage'=>..., 'hasPreviousPage'=>...]]
+     */
+    public function getPaginated($page = 1, $pageSize = 10)
+    {
+        global $pdo;
+
+        $page = max(1, (int)$page);
+        $pageSize = max(1, (int)$pageSize);
+
+        try {
+            $countSql = "SELECT COUNT(*) as total FROM `product-category`";
+            $stmt = $pdo->query($countSql);
+            $total = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            $pageCount = (int)ceil($total / $pageSize);
+            $offset = ($page - 1) * $pageSize;
+
+            $dataSql = "SELECT * FROM `product-category` ORDER BY id DESC LIMIT :limit OFFSET :offset";
+            $stmt = $pdo->prepare($dataSql);
+            $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'data' => $data,
+                'meta' => [
+                    'page' => $page,
+                    'size' => $pageSize,
+                    'pageCount' => $pageCount,
+                    'hasNextPage' => $page < $pageCount,
+                    'hasPreviousPage' => $page > 1
+                ]
+            ];
+        } catch (Exception $e) {
+            die("Erreur lors de la pagination : " . $e->getMessage());
+        }
+    }
+
     // ✅ Get all categories
     public function getAll()
     {
@@ -67,6 +111,7 @@ class ProductCategoryController
                 ':label' => $category->getLabel(),
                 ':description' => $category->getDescription()
             ]);
+            return $this->getById($id);
         } catch (Exception $e) {
             die("Erreur lors de la mise à jour : " . $e->getMessage());
         }

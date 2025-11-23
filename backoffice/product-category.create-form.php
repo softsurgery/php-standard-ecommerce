@@ -1,5 +1,5 @@
 <?php
-function renderProductCategoryForm($action = '#', $values = [], $method = 'POST')
+function renderProductCategoryCreateForm($action = '#', $values = [], $method = 'POST')
 {
     $label = htmlspecialchars($values['label'] ?? '');
     $description = htmlspecialchars($values['description'] ?? '');
