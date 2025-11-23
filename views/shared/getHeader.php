@@ -1,5 +1,5 @@
 <?php
-function getPageHead($title)
+function getPageHead($title, $root)
 {
     $safeTitle = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
     return "
@@ -9,7 +9,7 @@ function getPageHead($title)
             <title>$safeTitle</title>
             <script src='https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4'></script>
             <link href='https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css' rel='stylesheet' />
-            <link rel='stylesheet' href='../assets/css/global.css' type='text/css'>
+            <link rel='stylesheet' href='$root/assets/css/global.css' type='text/css'>
         </head>";
 }
 ?>

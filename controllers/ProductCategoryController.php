@@ -1,6 +1,6 @@
 <?php
-include __DIR__ .'/../config.php';
-include_once __DIR__ . '/../models/ProductCategory.php';
+require_once  __DIR__ . '/../models/config.php';
+require_once  __DIR__ . '/../models/ProductCategory.php';
 
 class ProductCategoryController
 {

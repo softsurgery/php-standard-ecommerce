@@ -5,4 +5,4 @@ session_start();
 $_SESSION["email"] = null;
 $_SESSION["authenticated"] = false;
 
-header('Location: ../signin.php');
+header('Location: ../../index.php');

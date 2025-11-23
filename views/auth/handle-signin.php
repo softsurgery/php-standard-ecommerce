@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../controllers/UserController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
 $controller = new UserController();
 
 $user = $controller->getByEmail($_POST['email']);
@@ -11,7 +11,7 @@ if ($user != null) {
     } else {
         $_SESSION['email'] = $user->getEmail();
         $_SESSION['authenticated'] = true;
-        header('Location: ../index.php');
+        header('Location: ../../index.php');
     }
 } else {
    echo  'account not found';
