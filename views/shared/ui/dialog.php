@@ -1,20 +1,20 @@
 <?php
 /**
- * Renders a Tailwind-style modal.
+ * Renders a Tailwind-style modal with buttons using renderButton().
  *
  * @param string $id Modal ID (unique)
  * @param string $title Modal title
  * @param string $content Modal main body content (HTML allowed)
- * @param array $footer Array of buttons, each like ['label' => '', 'class' => '', 'attrs' => []]
+ * @param array $footer Array of buttons, each like ['label' => '', 'class' => '', 'attrs' => [], 'variant' => 'default']
  * @param string $size Width size class (e.g., 'max-w-lg', 'max-w-2xl', 'max-w-3xl')
  */
 function renderModal($id, $title = '', $content = '', $footer = [], $size = 'max-w-2xl') {
 ?>
 <div id="<?= htmlspecialchars($id) ?>" tabindex="-1" aria-hidden="true"
     class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full">
-    <div class="relative w-full <?= htmlspecialchars($size) ?> max-h-full p-4">
+    <div class="relative w-full <?= htmlspecialchars($size) ?> max-h-full">
         <!-- Modal content -->
-        <div class="relative bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-6">
+        <div class="relative bg-white dark:bg-gray-800 border rounded-lg shadow-lg p-6 min-w-[500px]">
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-gray-200 pb-4">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white"><?= htmlspecialchars($title) ?></h3>
@@ -29,7 +29,7 @@ function renderModal($id, $title = '', $content = '', $footer = [], $size = 'max
             </div>
 
             <!-- Body -->
-            <div class="py-4">
+            <div class="py-4 text-gray-900 dark:text-white">
                 <?= $content ?>
             </div>
 
@@ -38,17 +38,15 @@ function renderModal($id, $title = '', $content = '', $footer = [], $size = 'max
             <div class="flex items-center justify-end space-x-3 border-t border-gray-200 pt-4">
                 <?php foreach ($footer as $btn): 
                     $label = $btn['label'] ?? 'Button';
-                    $class = $btn['class'] ?? 'text-white bg-blue-600 hover:bg-blue-700';
+                    $variant = $btn['variant'] ?? 'default';
+                    $class = $btn['class'] ?? '';
                     $attrs = $btn['attrs'] ?? [];
-                    $attrString = '';
-                    foreach ($attrs as $key => $value) {
-                        $attrString .= sprintf(' %s="%s"', htmlspecialchars($key), htmlspecialchars($value));
-                    }
-                ?>
-                <button type="button" class="<?= htmlspecialchars($class) ?>" <?= $attrString ?>>
-                    <?= htmlspecialchars($label) ?>
-                </button>
-                <?php endforeach; ?>
+                    
+                    // Merge variant with any extra classes if provided
+                    if ($class) $attrs['class'] = $class;
+                    
+                    renderButton($label, $variant, $attrs);
+                endforeach; ?>
             </div>
             <?php endif; ?>
         </div>

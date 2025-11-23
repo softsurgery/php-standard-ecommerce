@@ -159,8 +159,8 @@ echo getPageHead('Product Category', '../..');
 
     $content = '<p id="delete-modal-body">Are you sure you want to delete this category?</p>';
     $footer = [
-        ['label' => 'Accept', 'class' => 'text-white bg-green-600 hover:bg-green-700', 'attrs' => ['id' => 'delete-confirm', 'data-modal-hide' => 'delete-modal']],
-        ['label' => 'Decline', 'class' => 'text-gray-700 bg-gray-200 hover:bg-gray-300', 'attrs' => ['data-modal-hide' => 'delete-modal']],
+        ['label' => 'Accept', 'variant' => 'green',  'class' => 'text-white bg-green-600 hover:bg-green-700', 'attrs' => ['id' => 'delete-confirm', 'data-modal-hide' => 'delete-modal']],
+        ['label' => 'Decline',  'variant' => 'red', 'class' => 'text-gray-700 bg-gray-200 hover:bg-gray-300', 'attrs' => ['data-modal-hide' => 'delete-modal']],
     ];
 
     renderModal('delete-modal', 'Delete Category', $content, $footer, 'max-w-2xl');
