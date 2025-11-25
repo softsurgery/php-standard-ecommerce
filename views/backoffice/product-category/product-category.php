@@ -4,17 +4,17 @@
 <?php
 
 
-require_once __DIR__ . '/../shared/getHeader.php';
-require_once __DIR__ . '/../shared/ui/drawer.php';
-require_once __DIR__ . '/../shared/ui/dialog.php';
-require_once __DIR__ . '/../shared/ui/button.php';
-require_once __DIR__ . '/../shared/ui/pagination.php';
+require_once __DIR__ . '/../../shared/getHeader.php';
+require_once __DIR__ . '/../../shared/ui/drawer.php';
+require_once __DIR__ . '/../../shared/ui/dialog.php';
+require_once __DIR__ . '/../../shared/ui/button.php';
+require_once __DIR__ . '/../../shared/ui/pagination.php';
 require_once __DIR__ . '/product-category.create-form.php';
 require_once __DIR__ . '/product-category.update-form.php';
 
-require_once __DIR__ . '/../../controllers/ProductCategoryController.php';
+require_once __DIR__ . '/../../../controllers/ProductCategoryController.php';
 
-echo getPageHead('Product Category', '../..');
+echo getPageHead('Product Category', '../../..');
 ?>
 
 <body>
@@ -22,13 +22,13 @@ echo getPageHead('Product Category', '../..');
     <div class="flex flex-1 overflow-hidden h-screens">
         <!-- Sidebar -->
         <?php
-        require_once 'getBackofficeSidebar.php';
+        require_once __DIR__ . '/../getBackofficeSidebar.php';
         echo getBackofficeSidebar();
         ?>
         <!-- Header + Main -->
         <div class="flex flex-col flex-1 overflow-hidden h-screen">
             <?php
-            require_once __DIR__ . '/getBackofficeHeader.php';
+            require_once __DIR__ . '/../getBackofficeHeader.php';
             echo getBackofficeHeader();
             ?>
             <main class="flex flex-col flex-1 p-5 bg-gray-300 overflow-hidden">
@@ -100,7 +100,7 @@ echo getPageHead('Product Category', '../..');
                 </div>
             </main>
             <?php
-            require_once  __DIR__ . '/../shared/ui/toast.php';
+            require_once  __DIR__ . '/../../shared/ui/toast.php';
             ?>
             <script>
                 // Parse URL query parameters
@@ -128,7 +128,7 @@ echo getPageHead('Product Category', '../..');
 
     <?php
     $createForm = renderProductCategoryCreateForm(
-        '../product-category/handle-add.php',
+        '../../product-category/handle-add.php',
         ['label' => '', 'description' => ''],
         'POST'
     );
@@ -143,7 +143,7 @@ echo getPageHead('Product Category', '../..');
 
 
     $updateForm = renderProductCategoryUpdateForm(
-        '../product-category/handle-update.php',
+        '../../product-category/handle-update.php',
         ['label' => '', 'description' => ''],
         'POST'
     );
@@ -169,8 +169,8 @@ echo getPageHead('Product Category', '../..');
 
 
     <?php
-    require_once __DIR__ . '/../shared/getScripts.php';
-    echo getScripts('../..');
+    require_once __DIR__ . '/../../shared/getScripts.php';
+    echo getScripts('../../..');
     ?>
     <!-- populate update modal -->
     <script>
@@ -190,7 +190,7 @@ echo getPageHead('Product Category', '../..');
 
     <!-- prepare delete modal -->
     <script>
-        const origin = './views/backoffice/product-category.php';
+        const origin = './views/backoffice/product-category/product-category.php';
         document.querySelectorAll('[data-modal-show]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const modalId = btn.getAttribute('data-modal-target');
@@ -205,7 +205,7 @@ echo getPageHead('Product Category', '../..');
                 // Set confirm button action
                 const confirmBtn = modal.querySelector('#delete-confirm');
                 confirmBtn.onclick = function() {
-                    window.location.href = `../product-category/handle-delete.php?id=${categoryId}&origin=../../${origin}`;
+                    window.location.href = `../../product-category/handle-delete.php?id=${categoryId}&origin=../../${origin}`;
                 };
 
                 // Show modal
