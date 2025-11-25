@@ -23,7 +23,7 @@ echo getPageHead('Product Category', '../../..');
         <!-- Sidebar -->
         <?php
         require_once __DIR__ . '/../getBackofficeSidebar.php';
-        echo getBackofficeSidebar();
+        echo getBackofficeSidebar('../../..', 'product-categories');
         ?>
         <!-- Header + Main -->
         <div class="flex flex-col flex-1 overflow-hidden h-screen">
