@@ -5,6 +5,7 @@
 
 require_once __DIR__ . '/../../shared/ui/button.php';
 require_once __DIR__ . '/../../shared/ui/input.php';
+require_once __DIR__ . '/../../shared/ui/dialog.php';
 require_once __DIR__ . '/../../shared/getHeader.php';
 require_once __DIR__ . '/../../shared/ui/pagination.php';
 require_once __DIR__ . '/../../../controllers/QuizController.php';
@@ -50,11 +51,11 @@ echo getPageHead('Quiz', '../../..');
                         ]) ?>
                     </div>
                     <form class="flex flex-row gap-2 justify-center items-center my-2" method="GET">
-                        
+
                         <?php
                         echo "<input type='hidden' name='page' value='$page'>";
                         echo "<input type='hidden' name='size' value='$size'>";
-                        
+
                         renderInput('text', 'search', $search, 'Filter quizzes', [
                             'class' => 'mb-1',
                         ]);
@@ -97,7 +98,7 @@ echo getPageHead('Quiz', '../../..');
                                                     'data-modal-target' => 'delete-modal',
                                                     'data-modal-show' => 'delete-modal',
                                                     'data-quiz-id' => $quiz['id'],
-                                                    'data-quiz-name' => htmlspecialchars($quiz['name']),
+                                                    "data-quiz-name" => htmlspecialchars($quiz['name']),
                                                 ]) ?>
                                             </div>
                                         </td>
@@ -112,6 +113,7 @@ echo getPageHead('Quiz', '../../..');
                     renderPagination($page, $size, 100, $id = 'pagination');
                     ?>
                 </div>
+
             </main>
             <?php
             require_once  __DIR__ . '/../../shared/ui/toast.php';
@@ -140,10 +142,48 @@ echo getPageHead('Quiz', '../../..');
     </div>
 
     <?php
+    $content = '<p id="delete-modal-body">Are you sure you want to delete this quiz?</p>';
+    $footer = [
+        ['label' => 'Accept', 'variant' => 'green',  'class' => 'text-white bg-green-600 hover:bg-green-700', 'attrs' => ['id' => 'delete-confirm', 'data-modal-hide' => 'delete-modal']],
+        ['label' => 'Decline',  'variant' => 'red', 'class' => 'text-gray-700 bg-gray-200 hover:bg-gray-300', 'attrs' => ['data-modal-hide' => 'delete-modal']],
+    ];
+
+    renderModal('delete-modal', 'Delete Quiz', $content, $footer, 'max-w-2xl');
     require_once __DIR__ . '/../../shared/getScripts.php';
     echo getScripts('../../..');
     ?>
+    <script>
+        const origin = './views/backoffice/quiz/quiz-portal.php';
+        document.querySelectorAll('[data-modal-show]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-target');
+                const modal = document.getElementById(modalId);
 
+                // Populate modal content
+                const label = btn.getAttribute('data-quiz-name');
+                const quizId = btn.getAttribute('data-quiz-id');
+                const body = modal.querySelector('#delete-modal-body');
+                body.textContent = `Are you sure you want to delete the quiz "${label}"?`;
+
+                // Set confirm button action
+                const confirmBtn = modal.querySelector('#delete-confirm');
+                confirmBtn.onclick = function() {
+                    window.location.href = `../../quiz/handle-delete.php?id=${quizId}&origin=../../${origin}`;
+                };
+
+                // Show modal
+                modal.classList.remove('hidden');
+            });
+        });
+        // Close modal buttons
+        document.querySelectorAll('[data-modal-hide]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-hide');
+                const modal = document.getElementById(modalId);
+                modal.classList.add('hidden');
+            });
+        });
+    </script>
 </body>
 
 </html>

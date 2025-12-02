@@ -90,6 +90,18 @@ class QuizQuestionController
         }
     }
 
+    public function deleteByQuizId($quizId)
+    {
+        global $pdo;
+        $sql = "DELETE FROM `quiz_question` WHERE quiz_id = :quiz_id";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([':quiz_id' => $quizId]);
+        } catch (Exception $e) {
+            die("Erreur lors de la suppression : " . $e->getMessage());
+        }
+    }
+
     // Update ordering
     public function update($questionId, $quizId, $qq)
     {
