@@ -1,11 +1,4 @@
 <?php
-/**
- * Renders a Tailwind-style button dynamically.
- *
- * @param string $label  The text inside the button.
- * @param string $variant The visual style (e.g. 'default', 'alternative', 'dark', 'light', 'green', 'red', 'yellow', 'purple').
- * @param array  $attrs  Additional HTML attributes like ['id' => 'saveBtn', 'type' => 'submit'].
- */
 function renderButton($label, $variant = 'default', $attrs = [])
 {
     // Variants with Tailwind CSS classes
@@ -23,8 +16,14 @@ function renderButton($label, $variant = 'default', $attrs = [])
     // Select variant or fallback
     $class = $variants[$variant] ?? $variants['default'];
 
-    // ✅ If no attributes provided, or no "type" specified, add type="button"
-    if (empty($attrs) || !array_key_exists('type', $attrs)) {
+    // ✅ Merge additional class passed in $attrs['class']
+    if (isset($attrs['class'])) {
+        $class .= ' ' . $attrs['class'];
+        unset($attrs['class']); // avoid duplication
+    }
+
+    // Set default type="button" if none given
+    if (!isset($attrs['type'])) {
         $attrs['type'] = 'button';
     }
 
@@ -34,6 +33,12 @@ function renderButton($label, $variant = 'default', $attrs = [])
         $attrString .= sprintf(' %s="%s"', htmlspecialchars($key), htmlspecialchars($value));
     }
 
-    echo sprintf('<button class="%s"%s>%s</button>', $class, $attrString, htmlspecialchars($label));
+    echo sprintf(
+        '<button class="%s"%s>%s</button>',
+        htmlspecialchars($class),
+        $attrString,
+        htmlspecialchars($label)
+    );
 }
+
 ?>

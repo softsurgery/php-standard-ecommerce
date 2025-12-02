@@ -6,7 +6,7 @@ function getBackofficeSidebar($root = "", $active = "") {
     $tabs = [
         "dashboard" => [
             "label" => "Dashboard",
-            "link"  => "#"
+            "link"  => "$root/views/backoffice/index.php"
         ],
         "quiz" => [
             "label" => "Quiz",

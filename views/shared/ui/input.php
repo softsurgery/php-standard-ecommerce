@@ -1,13 +1,4 @@
 <?php
-/**
- * Renders a single Tailwind <input> with no label and no textarea support.
- *
- * @param string $type Input type (text, number, email, password, etc.)
- * @param string $name Name & ID of the input
- * @param string $value Default value
- * @param string $placeholder Placeholder
- * @param array  $attrs Additional HTML attributes (key => value)
- */
 function renderInput(
     $type,
     $name,
@@ -20,7 +11,17 @@ function renderInput(
                      dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
                      dark:text-white";
 
-    // Build attributes into key="value"
+    // Merge `class` attribute if passed in $attrs
+    $extraClass = '';
+    if (isset($attrs['class'])) {
+        $extraClass = $attrs['class'];
+        unset($attrs['class']); // remove so we don't duplicate it later
+    }
+
+    // Final class attribute
+    $class = trim($defaultClass . ' ' . $extraClass);
+
+    // Build remaining attributes
     $attrString = '';
     foreach ($attrs as $key => $val) {
         $attrString .= " " . htmlspecialchars($key) . '="' . htmlspecialchars($val) . '"';
@@ -33,7 +34,8 @@ function renderInput(
         name="'.htmlspecialchars($name).'"
         value="'.htmlspecialchars($value).'"
         placeholder="'.htmlspecialchars($placeholder).'"
-        class="'.$defaultClass.'"'.$attrString.'
+        class="'.$class.'"'.$attrString.'
     >';
 }
+
 ?>

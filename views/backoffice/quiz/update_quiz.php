@@ -8,8 +8,20 @@ require_once __DIR__ . '/../../shared/ui/input.php';
 require_once __DIR__ . '/../../shared/ui/textarea.php';
 require_once __DIR__ . '/../../shared/ui/select.php';
 require_once __DIR__ . '/../../shared/ui/label.php';
+require_once __DIR__ . '/../../../controllers/QuizController.php';
+require_once __DIR__ . '/../../../controllers/QuestionController.php';
+require_once __DIR__ . '/../../../controllers/QuizQuestionController.php';
 
 echo getPageHead('Page', '../../..');
+
+$quizController = new QuizController();
+$quizQuestionController = new QuizQuestionController();
+$questionController = new QuestionController();
+$quiz = $quizController->getById($_GET['id']);
+$quizQuestions = $quizQuestionController->getByQuizId($quiz->getId());
+$questionIds = array_map(fn($q) => $q->getQuestionId(), $quizQuestions);
+$questions = $questionController->getByIds($questionIds);
+
 ?>
 
 <body>
@@ -27,50 +39,49 @@ echo getPageHead('Page', '../../..');
             echo getBackofficeHeader();
             ?>
             <main class="flex flex-col flex-1 p-5 bg-gray-300 overflow-auto">
-                <form action="../../quiz/handle-add.php" method="post" id="quiz-form" class="container mx-auto">
+                <form action="../../quiz/handle-update.php" method="post" id="quiz-form" class="container mx-auto">
                     <div>
+                        <input type="hidden" name="quiz_id" value="<?= $quiz->getId() ?>">
                         <?php
                         renderLabel('name', 'Name');
-                        renderInput('text', 'name', '', 'Enter quiz name');
+                        renderInput('text', 'name', $quiz->getName(), 'Enter quiz name');
 
                         renderLabel('description', 'Description');
-                        renderTextarea('description', '', 4, 'Enter quiz description');
+                        renderTextarea('description', $quiz->getDescription(), 4, 'Enter quiz description');
                         ?>
                     </div>
 
                     <!-- Questions container (existing questions will be here) -->
                     <div id="questions-container" class="mt-4 p-4 border rounded-lg bg-gray-100">
-                        <?php
-                        // Example: Prepopulate with 1 question (replace with DB data)
-                        $questions = [
-                            ['label' => '', 'type' => 'Text']
-                        ];
 
-                        foreach ($questions as $i => $q) {
-                            // QUESTION ROW must be draggable and have class 'question-row'
-                            echo '<div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">';
+                        <?php foreach ($questions as $i => $q): ?>
+                            <div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">
 
-                            renderLabel("questions[$i][label]", "Question Label");
-                            renderInput('text', "questions[$i][label]", $q['label'], 'Enter question label');
+                                <?php
+                                // Hidden ID so update knows which question to modify
+                                renderInput('hidden', "questions[$i][id]", $q->getId());
 
-                            renderLabel("questions[$i][type]", "Question Type");
-                            renderSelect(
-                                "questions[$i][type]",
-                                [
-                                    (object)['id' => 'TEXT', 'label' => 'Text'],
-                                    (object)['id' => 'SWITCH', 'label' => 'Switch'],
-                                    (object)['id' => 'CHECKBOX', 'label' => 'Checkbox'],
-                                    (object)['id' => 'RADIO', 'label' => 'Radio'],
-                                    (object)['id' => 'SLIDER', 'label' => 'Slider'],
-                                ],
-                                $q['type']
-                            );
-                            echo '<button type="button" class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-2">';
-                            echo 'Delete';
-                            echo '</button>';
-                            echo '</div>';
-                        }
-                        ?>
+                                renderLabel("questions[$i][label]", "Question Label");
+                                renderInput('text', "questions[$i][label]", $q->getLabel(), 'Enter question label');
+
+                                renderLabel("questions[$i][type]", "Question Type");
+                                renderSelect(
+                                    "questions[$i][type]",
+                                    [
+                                        (object)['id' => 'TEXT', 'label' => 'Text'],
+                                        (object)['id' => 'SWITCH', 'label' => 'Switch'],
+                                        (object)['id' => 'CHECKBOX', 'label' => 'Checkbox'],
+                                        (object)['id' => 'RADIO', 'label' => 'Radio'],
+                                        (object)['id' => 'SLIDER', 'label' => 'Slider'],
+                                    ],
+                                    $q->getType()
+                                );
+                                echo '<button type="button" class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-2">';
+                                echo 'Delete';
+                                echo '</button>';
+                                ?>
+                            </div>
+                        <?php endforeach; ?>
 
                     </div>
 
@@ -107,7 +118,7 @@ echo getPageHead('Page', '../../..');
                         </button>
 
                         <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500">
-                            Save Quiz
+                            Update Quiz
                         </button>
                     </div>
                 </form>
@@ -278,6 +289,7 @@ echo getPageHead('Page', '../../..');
 
                     // Initial setup
                     applyDragToAll();
+                    applyDeleteToAll();
                     reindexAll();
 
                     // Optional: when form is submitted, ensure indexes are consistent

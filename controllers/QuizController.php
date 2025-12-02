@@ -5,32 +5,48 @@ require_once  __DIR__ . '/../models/Quiz.php';
 class QuizController
 {
 
-     /**
+    /**
      * Get paginated quizes
      * @param int $page Current page number (1-based)
      * @param int $pageSize Number of items per page
      * @return array ['data' => [...], 'meta' => ['page'=>..., 'size'=>..., 'pageCount'=>..., 'hasNextPage'=>..., 'hasPreviousPage'=>...]]
      */
-    public function getPaginated($page = 1, $pageSize = 10)
+    public function getPaginated($page = 1, $pageSize = 10, $search = '')
     {
         global $pdo;
 
         $page = max(1, (int)$page);
         $pageSize = max(1, (int)$pageSize);
+        $offset = ($page - 1) * $pageSize;
 
         try {
-            $countSql = "SELECT COUNT(*) as total FROM `quiz`";
-            $stmt = $pdo->query($countSql);
+            // COUNT with search
+            $countSql = "
+            SELECT COUNT(*) as total 
+            FROM `quiz`
+            WHERE name LIKE :search OR description LIKE :search
+        ";
+            $stmt = $pdo->prepare($countSql);
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+            $stmt->execute();
             $total = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
             $pageCount = (int)ceil($total / $pageSize);
-            $offset = ($page - 1) * $pageSize;
 
-            $dataSql = "SELECT * FROM `quiz` ORDER BY id DESC LIMIT :limit OFFSET :offset";
+            // DATA query with search + pagination
+            $dataSql = "
+            SELECT * FROM `quiz`
+            WHERE name LIKE :search OR description LIKE :search
+            ORDER BY id DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
             $stmt = $pdo->prepare($dataSql);
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
             $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
+
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             return [
@@ -40,7 +56,8 @@ class QuizController
                     'size' => $pageSize,
                     'pageCount' => $pageCount,
                     'hasNextPage' => $page < $pageCount,
-                    'hasPreviousPage' => $page > 1
+                    'hasPreviousPage' => $page > 1,
+                    'total' => $total
                 ]
             ];
         } catch (Exception $e) {
@@ -101,14 +118,12 @@ class QuizController
     public function update($id, $quiz)
     {
         global $pdo;
-        $sql = "UPDATE `quiz` 
-                SET name = :name, description = :description
-                WHERE id = :id";
+        $sql = "UPDATE `quiz` SET name = :name, description = :description WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':id' => $id,
-                ':label' => $quiz->getName(),
+                ':name' => $quiz->getName(),
                 ':description' => $quiz->getDescription()
             ]);
             return $this->getById($id);
@@ -139,4 +154,3 @@ class QuizController
         }
     }
 }
-?>

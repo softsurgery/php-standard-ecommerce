@@ -111,6 +111,20 @@ class QuizQuestionController
         }
     }
 
+    public function updateOrdering($quizId, $questionId, $ordering)
+    {
+        global $pdo;
+        $sql = "UPDATE quiz_question 
+            SET ordering = :ordering
+            WHERE quiz_id = :quiz_id AND question_id = :question_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':ordering' => $ordering,
+            ':quiz_id' => $quizId,
+            ':question_id' => $questionId
+        ]);
+    }
+
     // Get record
     public function getById($questionId, $quizId)
     {
@@ -138,5 +152,37 @@ class QuizQuestionController
             die("Erreur lors de la récupération : " . $e->getMessage());
         }
     }
+
+    public function getByQuizId($quizId)
+    {
+        global $pdo;
+        $sql = "SELECT * FROM `quiz_question` WHERE quiz_id = :quiz_id";
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute([
+                ':quiz_id' => $quizId
+            ]);
+            $data = $query->fetchAll(PDO::FETCH_ASSOC);
+            $quizQuestions = [];
+            foreach ($data as $question) {
+                $quizQuestions[] = new QuizQuestion(
+                    $question['quiz_id'],
+                    $question['question_id'],
+                    $question['ordering']
+                );
+            }
+            return $quizQuestions;
+        } catch (Exception $e) {
+            die("Erreur lors de la récupération : " . $e->getMessage());
+        }
+    }
+
+    public function countUsages($questionId)
+    {
+        global $pdo;
+        $sql = "SELECT COUNT(*) AS count FROM quiz_question WHERE question_id = :qid";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':qid' => $questionId]);
+        return (int)$stmt->fetch(PDO::FETCH_ASSOC)['count'];
+    }
 }
-?>

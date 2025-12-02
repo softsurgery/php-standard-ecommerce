@@ -8,7 +8,6 @@ $label = $_POST['label'] ?? '';
 $description = $_POST['description'] ?? '';
 $origin = $_POST['origin'] ?? '';
 
-
 if (empty($label)) {
     header('Location: ../../' . $origin . '?success=false&message=Label required!');
     exit;
