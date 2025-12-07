@@ -1,4 +1,4 @@
-// Drag & drop handling
+// Drag & drop handling with extra fields (choices / slider)
 let dragged = null;
 const container = document.getElementById("questions-container");
 const templateEl = document.getElementById("question-template");
@@ -21,17 +21,12 @@ function insertHtmlAsElement(html, parent) {
 function reindexAll() {
   const rows = container.querySelectorAll(".question-row");
   rows.forEach((row, idx) => {
-    // For each input/select/textarea inside the row, replace index in name & id
+    // Update input/select/textarea/label
     row.querySelectorAll("input, select, textarea, label").forEach((el) => {
-      // Update name attribute (e.g., questions[3][label])
-      if (el.name) {
+      if (el.name)
         el.name = el.name.replace(/questions\[\d+\]/g, `questions[${idx}]`);
-      }
-      // Update id attribute
-      if (el.id) {
+      if (el.id)
         el.id = el.id.replace(/questions\[\d+\]/g, `questions[${idx}]`);
-      }
-      // Update label 'for' attributes
       if (el.tagName.toLowerCase() === "label" && el.htmlFor) {
         el.htmlFor = el.htmlFor.replace(
           /questions\[\d+\]/g,
@@ -39,17 +34,22 @@ function reindexAll() {
         );
       }
     });
-  });
 
-  // keep the questionCount in sync with current number of rows
-  questionCount = container.querySelectorAll(".question-row").length;
+    // Reindex choices
+    const choices = row.querySelectorAll(".choice");
+    choices.forEach((choice, ci) => {
+      choice.querySelectorAll("input").forEach((inp) => {
+        inp.name = inp.name.replace(/choices\[\d+\]/g, `choices[${ci}]`);
+      });
+    });
+  });
 }
 
+// Drag & drop for a row
 function setupDragForRow(row) {
   row.addEventListener("dragstart", (e) => {
     dragged = row;
     row.classList.add("dragging");
-    // small data to enable drag in some browsers
     e.dataTransfer.setData("text/plain", "dragging");
     e.dataTransfer.effectAllowed = "move";
   });
@@ -58,7 +58,7 @@ function setupDragForRow(row) {
     if (dragged) dragged.classList.remove("dragging");
     dragged = null;
     removeDropHover();
-    reindexAll(); // ensure indexes are correct after drop
+    reindexAll();
   });
 
   row.addEventListener("dragover", (e) => {
@@ -75,8 +75,6 @@ function setupDragForRow(row) {
   row.addEventListener("drop", (e) => {
     e.preventDefault();
     if (!dragged || dragged === row) return;
-
-    // Insert dragged before the drop target
     container.insertBefore(dragged, row);
     removeDropHover();
     reindexAll();
@@ -89,66 +87,132 @@ function removeDropHover() {
     .forEach((el) => el.classList.remove("drop-hover"));
 }
 
-function applyDeleteToAll() {
-  const buttons = container.querySelectorAll(".delete-question");
-  buttons.forEach((btn) => {
-    if (!btn.dataset.deleteBound) {
-      btn.addEventListener("click", () => {
-        btn.closest(".question-row").remove();
+// Delete button for a row
+function applyDeleteToRow(row) {
+  const btn = row.querySelector(".delete-question");
+  if (btn && !btn.dataset.deleteBound) {
+    btn.addEventListener("click", () => {
+      row.remove();
+      reindexAll();
+    });
+    btn.dataset.deleteBound = "1";
+  }
+}
+
+// Show/hide extra fields based on type
+function updateExtraFields(row) {
+  const typeSelect = row.querySelector("select[name*='[type]']");
+  const type = typeSelect?.value || "";
+  const extra = row.querySelector(".extra-fields");
+  const choiceList = row.querySelector(".choice-list");
+  const sliderFields = row.querySelector(".slider-fields");
+
+  extra?.classList.add("hidden");
+  choiceList?.classList.add("hidden");
+  sliderFields?.classList.add("hidden");
+
+  if (type === "CHECKBOX" || type === "RADIO") {
+    extra?.classList.remove("hidden");
+    choiceList?.classList.remove("hidden");
+  } else if (type === "SLIDER") {
+    extra?.classList.remove("hidden");
+    sliderFields?.classList.remove("hidden");
+  }
+}
+
+function addChoice(row) {
+  const containerChoices = row.querySelector(".choices-container");
+  if (!containerChoices) return;
+
+  const qIndex = [...container.children].indexOf(row);
+  const cIndex = containerChoices.children.length;
+
+  // Get hidden template
+  const template = document
+    .getElementById("choice-template")
+    .firstElementChild.cloneNode(true);
+
+  // Replace placeholders with real indices
+  template.innerHTML = template.innerHTML
+    .replace(/__QINDEX__/g, qIndex)
+    .replace(/__CINDEX__/g, cIndex);
+
+  // Bind remove button
+  template.querySelector(".remove-choice").addEventListener("click", () => {
+    template.remove();
+    reindexAll();
+  });
+
+  containerChoices.appendChild(template);
+}
+
+// Bind type change to update extra fields
+function bindTypeChange(row) {
+  const select = row.querySelector("select[name*='[type]']");
+  if (select) {
+    select.addEventListener("change", () => {
+      updateExtraFields(row);
+    });
+  }
+}
+
+// Bind add-choice buttons
+function bindAddChoice(row) {
+  const addBtn = row.querySelector(".add-choice");
+  if (addBtn && !addBtn.dataset.bound) {
+    addBtn.addEventListener("click", () => addChoice(row));
+    addBtn.dataset.bound = "1";
+  }
+}
+
+// Apply all bindings to a row
+function applyBindingsToRow(row) {
+  setupDragForRow(row);
+  applyDeleteToRow(row);
+  bindTypeChange(row);
+  bindAddChoice(row);
+
+  // Setup remove buttons for existing choices
+  row.querySelectorAll(".remove-choice").forEach((btn) => {
+    if (!btn.dataset.bound) {
+      btn.addEventListener("click", (e) => {
+        e.target.closest(".choice").remove();
         reindexAll();
       });
-      btn.dataset.deleteBound = "1";
+      btn.dataset.bound = "1";
     }
   });
+
+  updateExtraFields(row);
 }
 
-// Apply drag handlers to all rows (existing or newly added)
-function applyDragToAll() {
-  const rows = container.querySelectorAll(".question-row");
-  rows.forEach((r) => {
-    // Avoid binding multiple times — check a flag
-    if (!r.dataset.dragBound) {
-      setupDragForRow(r);
-      r.dataset.dragBound = "1";
-    }
-  });
+// Apply bindings to all existing rows
+function applyBindingsToAllRows() {
+  container
+    .querySelectorAll(".question-row")
+    .forEach((row) => applyBindingsToRow(row));
 }
 
+// Setup the quiz DND system
 function setupQuizDND() {
   let questionCount = container.querySelectorAll(".question-row").length;
-
-  // Read raw HTML template (must be innerHTML so placeholders remain)
   const rawTemplate = templateEl.innerHTML;
 
-  // Add question handler
   document.getElementById("add-question").addEventListener("click", () => {
     const html = buildQuestionHtml(questionCount, rawTemplate);
-    const newEl = insertHtmlAsElement(html, container);
-
-    // Make sure newly inserted element has the expected class and draggable attribute
-    // (render helpers already set them, but keep safe)
-    newEl.classList.add("question-row");
-    newEl.setAttribute("draggable", "true");
-
-    // Bind drag events for the new row
-    applyDragToAll();
-    applyDeleteToAll();
-
-    // Reindex names/ids so the new row gets proper index
+    const newRow = insertHtmlAsElement(html, container);
+    newRow.classList.add("question-row");
+    newRow.setAttribute("draggable", "true");
+    applyBindingsToRow(newRow);
     reindexAll();
+    questionCount++;
   });
 
-  // Initial setup
-  applyDragToAll();
-  reindexAll();
+  applyBindingsToAllRows();
 
-  // Optional: when form is submitted, ensure indexes are consistent
+  // Reindex before submit
   const form = document.getElementById("quiz-form");
-  form.addEventListener("submit", () => {
-    reindexAll();
-    // you can add validation here
-  });
+  form?.addEventListener("submit", () => reindexAll());
 
-  // Expose a debug function in console (optional)
   window.debugReindex = reindexAll;
 }
