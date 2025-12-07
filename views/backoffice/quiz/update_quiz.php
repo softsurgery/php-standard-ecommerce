@@ -43,11 +43,16 @@ $questions = $questionController->getByIds($questionIds);
                     <div>
                         <input type="hidden" name="quiz_id" value="<?= $quiz->getId() ?>">
                         <?php
+                        echo '<div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">';
+
                         renderLabel('name', 'Name');
                         renderInput('text', 'name', $quiz->getName(), 'Enter quiz name');
 
                         renderLabel('description', 'Description');
                         renderTextarea('description', $quiz->getDescription(), 4, 'Enter quiz description');
+
+                        echo '</div>';
+
                         ?>
                     </div>
 
@@ -61,9 +66,14 @@ $questions = $questionController->getByIds($questionIds);
                                 // Hidden ID so update knows which question to modify
                                 renderInput('hidden', "questions[$i][id]", $q->getId());
 
+                                echo '<div class="flex flex-row gap-2">';
+
+                                echo '<div class="w-1/2">';
                                 renderLabel("questions[$i][label]", "Question Label");
                                 renderInput('text', "questions[$i][label]", $q->getLabel(), 'Enter question label');
+                                echo '</div>';
 
+                                echo '<div class="w-1/2">';
                                 renderLabel("questions[$i][type]", "Question Type");
                                 renderSelect(
                                     "questions[$i][type]",
@@ -76,6 +86,9 @@ $questions = $questionController->getByIds($questionIds);
                                     ],
                                     $q->getType()
                                 );
+                                echo '</div>';
+
+                                echo '</div>';
                                 echo '<button type="button" class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-2">';
                                 echo 'Delete';
                                 echo '</button>';
@@ -89,10 +102,15 @@ $questions = $questionController->getByIds($questionIds);
                     <div id="question-template" class="hidden">
                         <div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">
                             <?php
+                            echo '<div class="flex flex-row gap-2">';
+
                             // Use __INDEX__ placeholder — JS will replace it before inserting
+                            echo '<div class="w-1/2">';
                             renderLabel('questions[__INDEX__][label]', 'Question Label');
                             renderInput('text', 'questions[__INDEX__][label]', '', 'Enter question label');
+                            echo '</div>';
 
+                            echo '<div class="w-1/2">';
                             renderLabel('questions[__INDEX__][type]', 'Question Type');
                             renderSelect(
                                 'questions[__INDEX__][type]',
@@ -104,6 +122,9 @@ $questions = $questionController->getByIds($questionIds);
                                     (object)['id' => 'SLIDER', 'label' => 'Slider'],
                                 ],
                             );
+                            echo '</div>';
+
+                            echo '</div>';
                             ?>
                             <button type="button" class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-2">
                                 Delete
@@ -149,161 +170,6 @@ $questions = $questionController->getByIds($questionIds);
                     window.history.replaceState({}, document.title, newUrl);
                 }
             </script>
-
-            <!-- Add Question + Drag & Drop + Reindexing -->
-            <script>
-                (function() {
-                    const container = document.getElementById('questions-container');
-                    const templateEl = document.getElementById('question-template');
-                    let questionCount = container.querySelectorAll('.question-row').length;
-
-                    // Read raw HTML template (must be innerHTML so placeholders remain)
-                    const rawTemplate = templateEl.innerHTML;
-
-                    // Utility: replace all occurrences of __INDEX__ with index
-                    function buildQuestionHtml(index) {
-                        return rawTemplate.replace(/__INDEX__/g, index);
-                    }
-
-                    // Insert node from HTML string and return the inserted element
-                    function insertHtmlAsElement(html, parent) {
-                        const temp = document.createElement('div');
-                        temp.innerHTML = html.trim();
-                        const el = temp.firstElementChild;
-                        parent.appendChild(el);
-                        return el;
-                    }
-
-                    // Update name/id/for indices for all rows to reflect DOM order
-                    function reindexAll() {
-                        const rows = container.querySelectorAll('.question-row');
-                        rows.forEach((row, idx) => {
-                            // For each input/select/textarea inside the row, replace index in name & id
-                            row.querySelectorAll('input, select, textarea, label').forEach(el => {
-                                // Update name attribute (e.g., questions[3][label])
-                                if (el.name) {
-                                    el.name = el.name.replace(/questions\[\d+\]/g, `questions[${idx}]`);
-                                }
-                                // Update id attribute
-                                if (el.id) {
-                                    el.id = el.id.replace(/questions\[\d+\]/g, `questions[${idx}]`);
-                                }
-                                // Update label 'for' attributes
-                                if (el.tagName.toLowerCase() === 'label' && el.htmlFor) {
-                                    el.htmlFor = el.htmlFor.replace(/questions\[\d+\]/g, `questions[${idx}]`);
-                                }
-                            });
-                        });
-
-                        // keep the questionCount in sync with current number of rows
-                        questionCount = container.querySelectorAll('.question-row').length;
-                    }
-
-                    // Drag & drop handling
-                    let dragged = null;
-
-                    function setupDragForRow(row) {
-                        row.addEventListener('dragstart', (e) => {
-                            dragged = row;
-                            row.classList.add('dragging');
-                            // small data to enable drag in some browsers
-                            e.dataTransfer.setData('text/plain', 'dragging');
-                            e.dataTransfer.effectAllowed = 'move';
-                        });
-
-                        row.addEventListener('dragend', () => {
-                            if (dragged) dragged.classList.remove('dragging');
-                            dragged = null;
-                            removeDropHover();
-                            reindexAll(); // ensure indexes are correct after drop
-                        });
-
-                        row.addEventListener('dragover', (e) => {
-                            e.preventDefault();
-                            if (!dragged || dragged === row) return;
-                            removeDropHover();
-                            row.classList.add('drop-hover');
-                        });
-
-                        row.addEventListener('dragleave', () => {
-                            row.classList.remove('drop-hover');
-                        });
-
-                        row.addEventListener('drop', (e) => {
-                            e.preventDefault();
-                            if (!dragged || dragged === row) return;
-
-                            // Insert dragged before the drop target
-                            container.insertBefore(dragged, row);
-                            removeDropHover();
-                            reindexAll();
-                        });
-                    }
-
-                    function removeDropHover() {
-                        container.querySelectorAll('.drop-hover').forEach(el => el.classList.remove('drop-hover'));
-                    }
-
-                    // Apply drag handlers to all rows (existing or newly added)
-                    function applyDragToAll() {
-                        const rows = container.querySelectorAll('.question-row');
-                        rows.forEach(r => {
-                            // Avoid binding multiple times — check a flag
-                            if (!r.dataset.dragBound) {
-                                setupDragForRow(r);
-                                r.dataset.dragBound = '1';
-                            }
-                        });
-                    }
-
-                    function applyDeleteToAll() {
-                        const buttons = container.querySelectorAll('.delete-question');
-                        buttons.forEach(btn => {
-                            if (!btn.dataset.deleteBound) {
-                                btn.addEventListener('click', () => {
-                                    btn.closest('.question-row').remove();
-                                    reindexAll();
-                                });
-                                btn.dataset.deleteBound = '1';
-                            }
-                        });
-                    }
-
-                    // Add question handler
-                    document.getElementById('add-question').addEventListener('click', () => {
-                        const html = buildQuestionHtml(questionCount);
-                        const newEl = insertHtmlAsElement(html, container);
-
-                        // Make sure newly inserted element has the expected class and draggable attribute
-                        // (render helpers already set them, but keep safe)
-                        newEl.classList.add('question-row');
-                        newEl.setAttribute('draggable', 'true');
-
-                        // Bind drag events for the new row
-                        applyDragToAll();
-                        applyDeleteToAll();
-
-                        // Reindex names/ids so the new row gets proper index
-                        reindexAll();
-                    });
-
-                    // Initial setup
-                    applyDragToAll();
-                    applyDeleteToAll();
-                    reindexAll();
-
-                    // Optional: when form is submitted, ensure indexes are consistent
-                    const form = document.getElementById('quiz-form');
-                    form.addEventListener('submit', () => {
-                        reindexAll();
-                        // you can add validation here
-                    });
-
-                    // Expose a debug function in console (optional)
-                    window.debugReindex = reindexAll;
-                })();
-            </script>
-
         </div>
     </div>
 
@@ -311,6 +177,12 @@ $questions = $questionController->getByIds($questionIds);
     require_once __DIR__ . '/../../shared/getScripts.php';
     echo getScripts('../../..');
     ?>
+
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function() {
+            setupQuizDND();
+        });
+    </script>
 
 </body>
 
