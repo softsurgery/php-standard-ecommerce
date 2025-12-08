@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 25 nov. 2025 à 22:23
+-- Généré le : lun. 08 déc. 2025 à 21:35
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -53,6 +53,16 @@ CREATE TABLE `question` (
   `details` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`details`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `question`
+--
+
+INSERT INTO `question` (`id`, `label`, `type`, `details`) VALUES
+(1, 'Ut repudiandae qui n', 'CHECKBOX', '[]'),
+(2, 'Accusantium minima r', 'SLIDER', '{\"min\":\"3\",\"max\":\"7\"}'),
+(3, 'Nobis qui officia im', 'CHECKBOX', '{\"choices\":[{\"id\":\"Quam culpa doloribu\",\"label\":\"Quibusdam maxime ass\"},{\"id\":\"Possimus dignissimo\",\"label\":\"Do anim et voluptatu\"},{\"id\":\"Necessitatibus sit \",\"label\":\"Praesentium praesent\"},{\"id\":\"Do aliquip cum magni\",\"label\":\"Reprehenderit aut ad\"}]}'),
+(4, 'AAAA', 'TEXT', '[]');
+
 -- --------------------------------------------------------
 
 --
@@ -65,6 +75,13 @@ CREATE TABLE `quiz` (
   `description` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `quiz`
+--
+
+INSERT INTO `quiz` (`id`, `name`, `description`) VALUES
+(1, 'Shelley Randolph', 'Pariatur Culpa poss');
+
 -- --------------------------------------------------------
 
 --
@@ -76,6 +93,16 @@ CREATE TABLE `quiz_question` (
   `quiz_id` int(11) NOT NULL,
   `ordering` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `quiz_question`
+--
+
+INSERT INTO `quiz_question` (`question_id`, `quiz_id`, `ordering`) VALUES
+(1, 1, 0),
+(2, 1, 1),
+(3, 1, 2),
+(4, 1, 3);
 
 -- --------------------------------------------------------
 
@@ -149,19 +176,30 @@ ALTER TABLE `product-category`
 -- AUTO_INCREMENT pour la table `question`
 --
 ALTER TABLE `question`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `quiz`
 --
 ALTER TABLE `quiz`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `quiz_question`
+--
+ALTER TABLE `quiz_question`
+  ADD CONSTRAINT `quiz_question_ibfk_1` FOREIGN KEY (`quiz_id`) REFERENCES `quiz` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `quiz_question_ibfk_2` FOREIGN KEY (`question_id`) REFERENCES `question` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
