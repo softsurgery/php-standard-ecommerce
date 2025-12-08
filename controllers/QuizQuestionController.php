@@ -168,7 +168,7 @@ class QuizQuestionController
     public function getByQuizId($quizId)
     {
         global $pdo;
-        $sql = "SELECT * FROM `quiz_question` WHERE quiz_id = :quiz_id";
+        $sql = "SELECT * FROM `quiz_question` WHERE quiz_id = :quiz_id ORDER BY ordering ASC";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([

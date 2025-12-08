@@ -43,23 +43,50 @@ try {
 
         if ($label === '' || $type === '') continue;
 
+        // Build details JSON
+        $details = [];
+
+        // Save choices (for checkbox, radio, etc.)
+        if (isset($q['choices']) && is_array($q['choices']) && ($type == 'CHECKBOX' || $type == 'RADIO')) {
+            $choices = [];
+
+            foreach ($q['choices'] as $choice) {
+                $choices[] = [
+                    'id'    => $choice['id'] ?? null,
+                    'label' => $choice['label'] ?? null
+                ];
+            }
+
+            $details['choices'] = $choices;
+        }
+
+        // Save slider info (min/max)
+        if (isset($q['slider']) && $type === 'SLIDER') {
+            $details['min'] = $q['slider']['min'] ?? null;
+            $details['max'] = $q['slider']['max'] ?? null;
+        }
+
+        // Convert details to JSON
+        $detailsJson = json_encode($details);
+
+        // Create question
         $question = new Question(
             null,
             $label,
             $type,
-            null
+            $detailsJson
         );
 
         $savedQuestion = $questionCtrl->save($question);
 
-        // 3) Create quiz ↔ questions mappings
-
+        // Map quiz-question
         $quizQuestion = new QuizQuestion(
             $quiz->getId(),
             $savedQuestion->getId(),
             $ordering
         );
         $quizQuestionCtrl->save($quizQuestion);
+
         $ordering++;
     }
 

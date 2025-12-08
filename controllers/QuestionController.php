@@ -142,25 +142,38 @@ class QuestionController
         if (empty($ids)) {
             return [];
         }
+
         global $pdo;
-        $sql = "SELECT * FROM `question` WHERE id IN (" . implode(',', $ids) . ")";
+
+        // Ensure all IDs are integers to avoid SQL injection
+        $ids = array_map('intval', $ids);
+        $idList = implode(',', $ids);
+
+        $sql = "
+        SELECT * 
+        FROM `question` 
+        WHERE id IN ($idList)
+        ORDER BY FIELD(id, $idList)
+    ";
+
         try {
             $query = $pdo->prepare($sql);
             $query->execute();
             $data = $query->fetchAll(PDO::FETCH_ASSOC);
+
             $questions = [];
-            foreach ($data as $question) {
+            foreach ($data as $row) {
                 $questions[] = new Question(
-                    $question['id'],
-                    $question['label'],
-                    $question['type'],
-                    $question['details']
+                    $row['id'],
+                    $row['label'],
+                    $row['type'],
+                    $row['details']
                 );
             }
+
             return $questions;
         } catch (Exception $e) {
             die("Erreur lors de la récupération : " . $e->getMessage());
         }
     }
 }
-?>

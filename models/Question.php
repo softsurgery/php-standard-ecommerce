@@ -34,16 +34,53 @@ class Question
         return $this->details;
     }
 
-    // Helper for choices
-    function getChoices()
+    // Ensure $details is exposed as an array
+    protected function detailsAsArray(): array
     {
-        return $this->details['choices'] ?? [];
+        // If already an array, return it
+        if (is_array($this->details)) {
+            return $this->details;
+        }
+
+        // If it's a JSON string, decode it
+        if (is_string($this->details) && $this->details !== '') {
+            $decoded = json_decode($this->details, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        // Fallback: empty array
+        return [];
+    }
+
+    // Helper for choices
+    public function getChoices(): array
+    {
+        $details = $this->detailsAsArray();
+        return $details['choices'] ?? [];
     }
 
     // Helper for slider min/max
-    function getSlider()
+    public function getSlider(): array
     {
-        return $this->details['slider'] ?? ['min' => 0, 'max' => 100];
+        $details = $this->detailsAsArray();
+
+        // allow either ["min"=>..., "max"=>...] or top-level min/max keys if you used that
+        if (isset($details['slider']) && is_array($details['slider'])) {
+            $slider = $details['slider'];
+        } else {
+            $slider = [
+                'min' => $details['min'] ?? null,
+                'max' => $details['max'] ?? null,
+            ];
+        }
+
+        // Provide safe defaults
+        $slider['min'] = isset($slider['min']) ? (int)$slider['min'] : 0;
+        $slider['max'] = isset($slider['max']) ? (int)$slider['max'] : 100;
+
+        return $slider;
     }
 
     // Setters

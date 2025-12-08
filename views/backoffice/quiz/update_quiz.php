@@ -89,7 +89,7 @@ $questions = $questionController->getByIds($questionIds);
                                     <div class="choice-list mt-3 p-3 bg-gray-200 border rounded <?= in_array($q->getType(), ['CHECKBOX', 'RADIO']) ? '' : 'hidden' ?>">
                                         <h4 class="font-semibold mb-2">Choices</h4>
                                         <div class="choices-container">
-                                            <?php foreach ($q->getChoices() ?? [] as $ci => $choice): ?>
+                                            <?php foreach ($q->getChoices() as $ci => $choice): ?>
                                                 <div class="choice flex gap-2 mb-2">
                                                     <?php
                                                     renderInput(
@@ -209,7 +209,7 @@ $questions = $questionController->getByIds($questionIds);
             setupQuizDND();
         });
     </script>
-    
+
 </body>
 
 </html>

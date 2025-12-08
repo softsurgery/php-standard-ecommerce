@@ -60,25 +60,54 @@ try {
         $type  = trim($q['type'] ?? '');
 
         if ($label === '' || $type === '') {
-            continue; // skip empty rows
+            continue;
         }
 
+        // -----------------------------------------------------------
+        // BUILD details JSON
+        // -----------------------------------------------------------
+
+        $details = [];
+
+        // 1) Choices
+        if (isset($q['choices']) && is_array($q['choices']) && ($type == 'CHECKBOX' || $type == 'RADIO')) {
+            $choices = [];
+
+            foreach ($q['choices'] as $choice) {
+                $choices[] = [
+                    'id'    => $choice['id'] ?? null,
+                    'label' => $choice['label'] ?? null,
+                ];
+            }
+
+            if (!empty($choices)) {
+                $details['choices'] = $choices;
+            }
+        }
+
+        // 2) Slider
+        if (isset($q['slider'])) {
+            $details['min'] = $q['slider']['min'] ?? null;
+            $details['max'] = $q['slider']['max'] ?? null;
+        }
+
+        $detailsJson = json_encode($details);
+
+        // -----------------------------------------------------------
+        // UPDATE or INSERT QUESTION
+        // -----------------------------------------------------------
+
         if ($id) {
-            // -------------------------------
-            // EXISTING QUESTION → update it
-            // -------------------------------
-            $question = new Question($id, $label, $type, null);
+            // Update existing question
+            $question = new Question($id, $label, $type, $detailsJson);
             $questionCtrl->update($id, $question);
 
-            // Update ordering in mapping
             $quizQuestionCtrl->updateOrdering($quizId, $id, $ordering);
 
             $newIds[] = $id;
         } else {
-            // -------------------------------
-            // NEW QUESTION → insert
-            // -------------------------------
-            $newQuestion = new Question(null, $label, $type, null);
+            // Create new question
+            $newQuestion = new Question(null, $label, $type, $detailsJson);
             $created = $questionCtrl->save($newQuestion);
 
             $quizQuestion = new QuizQuestion(
