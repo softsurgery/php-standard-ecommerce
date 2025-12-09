@@ -11,8 +11,8 @@ if ($user != null) {
     } else {
         $_SESSION['email'] = $user->getEmail();
         $_SESSION['authenticated'] = true;
-        header('Location: ../../index.php');
+        header('Location: ../../views/frontoffice');
     }
 } else {
-   echo  'account not found';
+    echo  'account not found';
 }
