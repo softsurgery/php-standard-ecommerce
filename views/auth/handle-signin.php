@@ -9,6 +9,7 @@ if ($user != null) {
     if ($encrypted != $user->getPassword()) {
         echo 'incorrect password';
     } else {
+        $_SESSION['user_id'] = $user->getId();
         $_SESSION['email'] = $user->getEmail();
         $_SESSION['authenticated'] = true;
         header('Location: ../../views/frontoffice');

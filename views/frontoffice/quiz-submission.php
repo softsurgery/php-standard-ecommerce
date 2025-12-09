@@ -30,7 +30,6 @@ $questions = $quizQuestionCtrl->getQuestionsForQuiz($quizId);
 
 <head>
     <title><?= htmlspecialchars($quiz->getName()) ?></title>
-    <link rel="stylesheet" href="/path/to/tailwind.css">
 </head>
 
 <body class="bg-gray-100 p-8">
@@ -45,7 +44,7 @@ $questions = $quizQuestionCtrl->getQuestionsForQuiz($quizId);
             <?= nl2br(htmlspecialchars($quiz->getDescription())) ?>
         </p>
 
-        <form method="post" action="submit-survey.php">
+        <form method="post" action="../quiz/handle-submission.php">
 
             <input type="hidden" name="quiz_id" value="<?= $quizId ?>">
 
