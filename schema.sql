@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 09 déc. 2025 à 23:08
+-- Généré le : mar. 09 déc. 2025 à 23:17
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -129,6 +129,13 @@ CREATE TABLE `submission` (
   `answers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`answers`)),
   `createdAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `submission`
+--
+
+INSERT INTO `submission` (`quiz_id`, `user_id`, `answers`, `createdAt`) VALUES
+(3, 3, '{\"6\":\"Mollitia est aut com\",\"7\":\"1\",\"8\":\"1\",\"10\":[\"Sed ullam sed earum \",\"Dolores dolores eum \",\"Velit quibusdam cupi\"],\"11\":\"Sunt adipisci dicta\",\"12\":\"Aliquam laboriosam \"}', '2025-12-09 23:14:58');
 
 -- --------------------------------------------------------
 
