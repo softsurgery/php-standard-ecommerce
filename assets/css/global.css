@@ -5,3 +5,18 @@ html, body {
     padding: 0;
     overflow: hidden;
 }
+
+
+.question-row {
+    transition: transform 180ms ease, opacity 180ms ease;
+}
+
+/* Drop target visual indicator */
+.question-row.drop-hover {
+    border-top: 3px solid #2563eb; /* Blue-600 */
+}
+
+.question-row.dragging {
+    opacity: 1;          /* full opacity */
+    transform: scale(0.5); /* light shrink effect (optional) */
+}

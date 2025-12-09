@@ -1,10 +1,7 @@
 <?php
 
-header('Content-Type: application/json');
-
-require_once '../../controllers/ProductCategoryController.php';
-require_once '../../models/ProductCategory.php';
-require_once '../../lib/error.php';
+require_once __DIR__ . '/../../controllers/ProductCategoryController.php';
+require_once __DIR__ . '/../../models/ProductCategory.php';
 
 $controller = new ProductCategoryController();
 
@@ -12,15 +9,16 @@ $controller = new ProductCategoryController();
 $id = $_POST['id'] ?? null;
 $label = $_POST['label'] ?? '';
 $description = $_POST['description'] ?? '';
+$origin = $_POST['origin'] ?? '';
 
 // Validate
 if (empty($id)) {
-    echo json_encode(['success' => false, 'message' => 'Category ID is required']);
+    header('Location: ../../' . $origin . '?success=false&message=Id is not provided!');
     exit;
 }
 
 if (empty($label)) {
-    echo json_encode(['success' => false, 'message' => 'Label is required']);
+    header('Location: ../../' . $origin . '?success=false&message=Label is not provided!');
     exit;
 }
 
@@ -31,15 +29,7 @@ try {
     // Call controller to update
     $updatedCategory = $controller->update($id, $category);
 
-    echo json_encode([
-        'success' => true,
-        'data' => $updatedCategory->toArray()
-    ]);
+    header('Location: ../../' . $origin . '?success=true&message=Category updated successfully!');
 } catch (Exception $e) {
-    echo json_encode([
-        'success' => false,
-        'message' => $e->getMessage()
-    ]);
+    header('Location: ../../' . $origin . '?success=false&message=' . $e->getMessage());
 }
-
-?>

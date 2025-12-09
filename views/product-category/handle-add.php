@@ -1,30 +1,22 @@
 <?php
 
-    header('Content-Type: application/json');
+require_once __DIR__ . '/../../controllers/ProductCategoryController.php';
+require_once __DIR__ . '/../../models/ProductCategory.php';
+$controller = new ProductCategoryController();
 
-    require_once '../../controllers/ProductCategoryController.php';
-    require_once '../../models/ProductCategory.php';
-    require_once '../../lib/error.php';
-    $controller = new ProductCategoryController();
+$label = $_POST['label'] ?? '';
+$description = $_POST['description'] ?? '';
+$origin = $_POST['origin'] ?? '';
 
-    $label = $_POST['label'] ?? '';
-    $description = $_POST['description'] ?? '';
-
-
-    if (empty($label)) {
-        echo json_encode(['success' => false, 'message' => 'Label required']);
-        exit;
-    }
+if (empty($label)) {
+    header('Location: ../../' . $origin . '?success=false&message=Label required!');
+    exit;
+}
 
 try {
     $category = new ProductCategory(null, $label, $description);
     $category = $controller->save($category);
-
-    echo json_encode([
-        'success' => true,
-        'data' => $category->toArray()
-    ]);
+    header('Location: ../../' . $origin . '?success=true&message=Category added successfully!');
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    header('Location: ../../' . $origin . '?success=false&message=' . $e->getMessage());
 }
-?>

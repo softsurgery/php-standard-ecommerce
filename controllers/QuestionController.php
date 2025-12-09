@@ -1,32 +1,27 @@
 <?php
-require_once  __DIR__ . '/../models/config.php';
-require_once  __DIR__ . '/../models/ProductCategory.php';
+require_once __DIR__ . '/../models/config.php';
+require_once __DIR__ . '/../models/Question.php';
 
-class ProductCategoryController
+class QuestionController
 {
-
-     /**
-     * Get paginated categories
-     * @param int $page Current page number (1-based)
-     * @param int $pageSize Number of items per page
-     * @return array ['data' => [...], 'meta' => ['page'=>..., 'size'=>..., 'pageCount'=>..., 'hasNextPage'=>..., 'hasPreviousPage'=>...]]
+    /**
+     * Get paginated questions
      */
     public function getPaginated($page = 1, $pageSize = 10)
     {
         global $pdo;
-
         $page = max(1, (int)$page);
         $pageSize = max(1, (int)$pageSize);
 
         try {
-            $countSql = "SELECT COUNT(*) as total FROM `product-category`";
+            $countSql = "SELECT COUNT(*) AS total FROM `question`";
             $stmt = $pdo->query($countSql);
             $total = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
             $pageCount = (int)ceil($total / $pageSize);
             $offset = ($page - 1) * $pageSize;
 
-            $dataSql = "SELECT * FROM `product-category` ORDER BY id DESC LIMIT :limit OFFSET :offset";
+            $dataSql = "SELECT * FROM `question` ORDER BY id DESC LIMIT :limit OFFSET :offset";
             $stmt = $pdo->prepare($dataSql);
             $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -48,11 +43,11 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Get all categories
+    // Get all questions
     public function getAll()
     {
         global $pdo;
-        $sql = "SELECT * FROM `product-category`";
+        $sql = "SELECT * FROM `question`";
         try {
             $query = $pdo->query($sql);
             return $query->fetchAll(PDO::FETCH_ASSOC);
@@ -61,34 +56,32 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Add new category
-    public function save($category)
+    // Add new question
+    public function save($question)
     {
         global $pdo;
-
-        $sql = "INSERT INTO `product-category` (label, description)
-            VALUES (:label, :description)";
+        $sql = "INSERT INTO `question` (label, type, details)
+                VALUES (:label, :type, :details)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
-                ':label' => $category->getLabel(),
-                ':description' => $category->getDescription()
+                ':label' => $question->getLabel(),
+                ':type' => $question->getType(),
+                ':details' => $question->getDetails()
             ]);
 
-            // ✅ Get the last inserted ID
             $lastId = $pdo->lastInsertId();
-
             return $this->getById($lastId);
         } catch (Exception $e) {
             die("Erreur lors de l'enregistrement : " . $e->getMessage());
         }
     }
 
-    // ✅ Delete category by ID
+    // Delete question
     public function delete($id)
     {
         global $pdo;
-        $sql = "DELETE FROM `product-category` WHERE id = :id";
+        $sql = "DELETE FROM `question` WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':id' => $id]);
@@ -97,46 +90,90 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Update category info
-    public function update($id, $category)
+    // Update question
+    public function update($id, $question)
     {
         global $pdo;
-        $sql = "UPDATE `product-category` 
-                SET label = :label, description = :description
+        $sql = "UPDATE `question` 
+                SET label = :label, type = :type, details = :details
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':id' => $id,
-                ':label' => $category->getLabel(),
-                ':description' => $category->getDescription()
+                ':label' => $question->getLabel(),
+                ':type' => $question->getType(),
+                ':details' => $question->getDetails()
             ]);
+
             return $this->getById($id);
         } catch (Exception $e) {
             die("Erreur lors de la mise à jour : " . $e->getMessage());
         }
     }
 
-    // ✅ Get category by ID
+    // Get question by ID
     public function getById($id)
     {
         global $pdo;
-        $sql = "SELECT * FROM `product-category` WHERE id = :id";
+        $sql = "SELECT * FROM `question` WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':id' => $id]);
             $data = $query->fetch(PDO::FETCH_ASSOC);
+
             if ($data) {
-                return new ProductCategory(
+                return new Question(
                     $data['id'],
                     $data['label'],
-                    $data['description'],
+                    $data['type'],
+                    $data['details']
                 );
             }
+
             return null;
         } catch (Exception $e) {
             die("Erreur lors de la récupération : " . $e->getMessage());
         }
     }
+
+    public function getByIds($ids)
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        global $pdo;
+
+        // Ensure all IDs are integers to avoid SQL injection
+        $ids = array_map('intval', $ids);
+        $idList = implode(',', $ids);
+
+        $sql = "
+        SELECT * 
+        FROM `question` 
+        WHERE id IN ($idList)
+        ORDER BY FIELD(id, $idList)
+    ";
+
+        try {
+            $query = $pdo->prepare($sql);
+            $query->execute();
+            $data = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            $questions = [];
+            foreach ($data as $row) {
+                $questions[] = new Question(
+                    $row['id'],
+                    $row['label'],
+                    $row['type'],
+                    $row['details']
+                );
+            }
+
+            return $questions;
+        } catch (Exception $e) {
+            die("Erreur lors de la récupération : " . $e->getMessage());
+        }
+    }
 }
-?>

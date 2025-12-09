@@ -4,5 +4,7 @@ session_start();
 
 $_SESSION["email"] = null;
 $_SESSION["authenticated"] = false;
+$_SESSION['user_id'] = null;
 
-header('Location: ../signin.php');
+
+header('Location: ../../views/frontoffice');

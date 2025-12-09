@@ -1,36 +1,52 @@
 <?php
 require_once  __DIR__ . '/../models/config.php';
-require_once  __DIR__ . '/../models/ProductCategory.php';
+require_once  __DIR__ . '/../models/Quiz.php';
 
-class ProductCategoryController
+class QuizController
 {
 
-     /**
-     * Get paginated categories
+    /**
+     * Get paginated quizes
      * @param int $page Current page number (1-based)
      * @param int $pageSize Number of items per page
      * @return array ['data' => [...], 'meta' => ['page'=>..., 'size'=>..., 'pageCount'=>..., 'hasNextPage'=>..., 'hasPreviousPage'=>...]]
      */
-    public function getPaginated($page = 1, $pageSize = 10)
+    public function getPaginated($page = 1, $pageSize = 10, $search = '')
     {
         global $pdo;
 
         $page = max(1, (int)$page);
         $pageSize = max(1, (int)$pageSize);
+        $offset = ($page - 1) * $pageSize;
 
         try {
-            $countSql = "SELECT COUNT(*) as total FROM `product-category`";
-            $stmt = $pdo->query($countSql);
+            // COUNT with search
+            $countSql = "
+            SELECT COUNT(*) as total 
+            FROM `quiz`
+            WHERE name LIKE :search OR description LIKE :search
+        ";
+            $stmt = $pdo->prepare($countSql);
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+            $stmt->execute();
             $total = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
             $pageCount = (int)ceil($total / $pageSize);
-            $offset = ($page - 1) * $pageSize;
 
-            $dataSql = "SELECT * FROM `product-category` ORDER BY id DESC LIMIT :limit OFFSET :offset";
+            // DATA query with search + pagination
+            $dataSql = "
+            SELECT * FROM `quiz`
+            WHERE name LIKE :search OR description LIKE :search
+            ORDER BY id DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
             $stmt = $pdo->prepare($dataSql);
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
             $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
+
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             return [
@@ -40,7 +56,8 @@ class ProductCategoryController
                     'size' => $pageSize,
                     'pageCount' => $pageCount,
                     'hasNextPage' => $page < $pageCount,
-                    'hasPreviousPage' => $page > 1
+                    'hasPreviousPage' => $page > 1,
+                    'total' => $total
                 ]
             ];
         } catch (Exception $e) {
@@ -48,11 +65,11 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Get all categories
+    // ✅ Get all quizes
     public function getAll()
     {
         global $pdo;
-        $sql = "SELECT * FROM `product-category`";
+        $sql = "SELECT * FROM `quiz`";
         try {
             $query = $pdo->query($sql);
             return $query->fetchAll(PDO::FETCH_ASSOC);
@@ -61,18 +78,18 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Add new category
-    public function save($category)
+    // ✅ Add new quiz
+    public function save($quiz)
     {
         global $pdo;
 
-        $sql = "INSERT INTO `product-category` (label, description)
-            VALUES (:label, :description)";
+        $sql = "INSERT INTO `quiz` (name, description)
+            VALUES (:name, :description)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
-                ':label' => $category->getLabel(),
-                ':description' => $category->getDescription()
+                ':name' => $quiz->getName(),
+                ':description' => $quiz->getDescription()
             ]);
 
             // ✅ Get the last inserted ID
@@ -84,11 +101,11 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Delete category by ID
+    // ✅ Delete quiz by ID
     public function delete($id)
     {
         global $pdo;
-        $sql = "DELETE FROM `product-category` WHERE id = :id";
+        $sql = "DELETE FROM `quiz` WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':id' => $id]);
@@ -97,19 +114,17 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Update category info
-    public function update($id, $category)
+    // ✅ Update quiz info
+    public function update($id, $quiz)
     {
         global $pdo;
-        $sql = "UPDATE `product-category` 
-                SET label = :label, description = :description
-                WHERE id = :id";
+        $sql = "UPDATE `quiz` SET name = :name, description = :description WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':id' => $id,
-                ':label' => $category->getLabel(),
-                ':description' => $category->getDescription()
+                ':name' => $quiz->getName(),
+                ':description' => $quiz->getDescription()
             ]);
             return $this->getById($id);
         } catch (Exception $e) {
@@ -117,19 +132,19 @@ class ProductCategoryController
         }
     }
 
-    // ✅ Get category by ID
+    // ✅ Get quiz by ID
     public function getById($id)
     {
         global $pdo;
-        $sql = "SELECT * FROM `product-category` WHERE id = :id";
+        $sql = "SELECT * FROM `quiz` WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([':id' => $id]);
             $data = $query->fetch(PDO::FETCH_ASSOC);
             if ($data) {
-                return new ProductCategory(
+                return new Quiz(
                     $data['id'],
-                    $data['label'],
+                    $data['name'],
                     $data['description'],
                 );
             }
@@ -139,4 +154,3 @@ class ProductCategoryController
         }
     }
 }
-?>

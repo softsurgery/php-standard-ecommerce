@@ -4,26 +4,31 @@
 <?php
 
 
-require_once '../getHeader.php';
-require_once '../ui/drawer.php';
-require_once '../ui/button.php';
-require_once '../ui/pagination.php';
-require_once './product-category.create-form.php';
-require_once './product-category.update-form.php';
-echo getPageHead('Product Category');
+require_once __DIR__ . '/../../shared/getHeader.php';
+require_once __DIR__ . '/../../shared/ui/drawer.php';
+require_once __DIR__ . '/../../shared/ui/dialog.php';
+require_once __DIR__ . '/../../shared/ui/button.php';
+require_once __DIR__ . '/../../shared/ui/pagination.php';
+require_once __DIR__ . '/product-category.create-form.php';
+require_once __DIR__ . '/product-category.update-form.php';
+
+require_once __DIR__ . '/../../../controllers/ProductCategoryController.php';
+
+echo getPageHead('Product Category', '../../..');
 ?>
 
 <body>
+
     <div class="flex flex-1 overflow-hidden h-screens">
         <!-- Sidebar -->
         <?php
-        require_once 'getBackofficeSidebar.php';
-        echo getBackofficeSidebar();
+        require_once __DIR__ . '/../getBackofficeSidebar.php';
+        echo getBackofficeSidebar('../../..', 'product-categories');
         ?>
         <!-- Header + Main -->
         <div class="flex flex-col flex-1 overflow-hidden h-screen">
             <?php
-            require_once './getBackofficeHeader.php';
+            require_once __DIR__ . '/../getBackofficeHeader.php';
             echo getBackofficeHeader();
             ?>
             <main class="flex flex-col flex-1 p-5 bg-gray-300 overflow-hidden">
@@ -31,7 +36,6 @@ echo getPageHead('Product Category');
                     <!-- Drawer Trigger -->
                     <!-- drawer init and toggle -->
                     <div class="text-center">
-
                         <?php renderButton('Add Product Category', $variant = 'green', $attrs = [
                             'aria-controls' => 'create-drawer',
                             'data-drawer-target' => 'create-drawer',
@@ -52,7 +56,6 @@ echo getPageHead('Product Category');
                             </thead>
                             <tbody class="divide-y divide-gray-200 max-h-[500px] overflow-auto">
                                 <?php
-                                require_once '../controllers/ProductCategoryController.php';
                                 $controller = new ProductCategoryController();
                                 $categories = $controller->getPaginated(1, 10); // page 1, size 10
                                 foreach ($categories['data'] as $category): ?>
@@ -74,10 +77,10 @@ echo getPageHead('Product Category');
                                                     'data-description' => htmlspecialchars($category['description'])
                                                 ]) ?>
                                                 <?php renderButton('Delete', 'red', [
-                                                    'aria-controls' => 'drawer-example',
-                                                    'data-drawer-target' => 'drawer-example',
-                                                    'data-drawer-show' => 'drawer-example',
-                                                    'data-drawer-placement' => "right"
+                                                    'data-modal-target' => 'delete-modal',
+                                                    'data-modal-show' => 'delete-modal',
+                                                    'data-category-id' => $category['id'],
+                                                    'data-category-label' => htmlspecialchars($category['label']),
                                                 ]) ?>
                                             </div>
                                         </td>
@@ -97,15 +100,35 @@ echo getPageHead('Product Category');
                 </div>
             </main>
             <?php
-            require_once '../ui/toast.php';
+            require_once  __DIR__ . '/../../shared/ui/toast.php';
             ?>
+            <script>
+                // Parse URL query parameters
+                const urlParams = new URLSearchParams(window.location.search);
+
+                // Check for success or error
+                if (urlParams.get('success') === 'true') {
+                    const message = urlParams.get('message') || 'Action completed successfully!';
+                    showToast(message, 'success', 'bottom-right');
+                } else if (urlParams.get('error') === 'true') {
+                    const message = urlParams.get('message') || 'Something went wrong.';
+                    showToast(message, 'error', 'bottom-right');
+                }
+
+                // Remove query parameters from URL without reloading
+                if (urlParams.has('success') || urlParams.has('error')) {
+                    const newUrl = window.location.pathname; // keeps same path, removes query
+                    window.history.replaceState({}, document.title, newUrl);
+                }
+            </script>
+
         </div>
     </div>
 
 
     <?php
     $createForm = renderProductCategoryCreateForm(
-        '../views/product-category/handle-add.php',
+        '../../product-category/handle-add.php',
         ['label' => '', 'description' => ''],
         'POST'
     );
@@ -120,7 +143,7 @@ echo getPageHead('Product Category');
 
 
     $updateForm = renderProductCategoryUpdateForm(
-        '../views/product-category/handle-update.php',
+        '../../product-category/handle-update.php',
         ['label' => '', 'description' => ''],
         'POST'
     );
@@ -133,66 +156,24 @@ echo getPageHead('Product Category');
         $updateForm,
         'right'
     );
+
+    $content = '<p id="delete-modal-body">Are you sure you want to delete this category?</p>';
+    $footer = [
+        ['label' => 'Accept', 'variant' => 'green',  'class' => 'text-white bg-green-600 hover:bg-green-700', 'attrs' => ['id' => 'delete-confirm', 'data-modal-hide' => 'delete-modal']],
+        ['label' => 'Decline',  'variant' => 'red', 'class' => 'text-gray-700 bg-gray-200 hover:bg-gray-300', 'attrs' => ['data-modal-hide' => 'delete-modal']],
+    ];
+
+    renderModal('delete-modal', 'Delete Category', $content, $footer, 'max-w-2xl');
     ?>
 
 
 
     <?php
-    require_once '../getScripts.php';
-    echo getScripts();
+    require_once __DIR__ . '/../../shared/getScripts.php';
+    echo getScripts('../../..');
     ?>
+    <!-- populate update modal -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('#create-drawer .drawer-content form');
-            if (!form) return;
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-                const submitBtn = form.querySelector('button[type="submit"]');
-                submitBtn.disabled = true;
-
-                try {
-                    const response = await fetch(form.action, {
-                        method: form.method,
-                        body: formData
-                    });
-
-                    const result = await response.json();
-                    console.log(result);
-
-                    if (result.success) {
-                        // ✅ Add new row to the table dynamically
-                        const tbody = document.querySelector('table tbody');
-                        const newRow = document.createElement('tr');
-                        newRow.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200';
-                        newRow.innerHTML = `
-          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${result.data.id}</th>
-          <td class="px-6 py-4">${result.data.label}</td>
-          <td class="px-6 py-4">${result.data.description}</td>
-        `;
-                        tbody.appendChild(newRow);
-
-                        // ✅ Clear form fields
-                        form.reset();
-
-                        // ✅ Close the drawer (Flowbite way)
-                        const drawerXEl = document.getElementById('create-drawer-x');
-                        drawerXEl.click();
-                        showToast('Product category added successfully!', 'success');
-                    } else {
-                        alert('Error: ' + (result.message || 'Failed to save category.'));
-                    }
-                } catch (error) {
-                    console.error('AJAX error:', error);
-                    alert('Unexpected error, check console.');
-                    showToast(result.message || 'Failed to save category.', 'error');
-                } finally {
-                    submitBtn.disabled = false;
-                }
-            });
-        });
         document.querySelectorAll('[data-drawer-target="update-drawer"]').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
@@ -203,6 +184,41 @@ echo getPageHead('Product Category');
                 document.getElementById('update-id').value = id;
                 document.getElementById('update-label').value = label;
                 document.getElementById('update-description').value = description;
+            });
+        });
+    </script>
+
+    <!-- prepare delete modal -->
+    <script>
+        const origin = './views/backoffice/product-category/product-category.php';
+        document.querySelectorAll('[data-modal-show]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-target');
+                const modal = document.getElementById(modalId);
+
+                // Populate modal content
+                const categoryLabel = btn.getAttribute('data-category-label');
+                const categoryId = btn.getAttribute('data-category-id');
+                const body = modal.querySelector('#delete-modal-body');
+                body.textContent = `Are you sure you want to delete the category "${categoryLabel}"?`;
+
+                // Set confirm button action
+                const confirmBtn = modal.querySelector('#delete-confirm');
+                confirmBtn.onclick = function() {
+                    window.location.href = `../../product-category/handle-delete.php?id=${categoryId}&origin=../../${origin}`;
+                };
+
+                // Show modal
+                modal.classList.remove('hidden');
+            });
+        });
+
+        // Close modal buttons
+        document.querySelectorAll('[data-modal-hide]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal-hide');
+                const modal = document.getElementById(modalId);
+                modal.classList.add('hidden');
             });
         });
     </script>
