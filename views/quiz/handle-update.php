@@ -77,6 +77,7 @@ try {
                 $choices[] = [
                     'id'    => $choice['id'] ?? null,
                     'label' => $choice['label'] ?? null,
+                    'correct' => $choice['correct'] ?? null
                 ];
             }
 

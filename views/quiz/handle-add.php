@@ -53,7 +53,8 @@ try {
             foreach ($q['choices'] as $choice) {
                 $choices[] = [
                     'id'    => $choice['id'] ?? null,
-                    'label' => $choice['label'] ?? null
+                    'label' => $choice['label'] ?? null,
+                    'correct' => $choice['correct'] ?? null
                 ];
             }
 

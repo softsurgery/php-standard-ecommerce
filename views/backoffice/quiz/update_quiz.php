@@ -4,6 +4,7 @@
 <?php
 require_once __DIR__ . '/../../shared/getHeader.php';
 require_once __DIR__ . '/../../shared/ui/input.php';
+require_once __DIR__ . '/../../shared/ui/checkbox.php';
 require_once __DIR__ . '/../../shared/ui/textarea.php';
 require_once __DIR__ . '/../../shared/ui/select.php';
 require_once __DIR__ . '/../../shared/ui/label.php';
@@ -106,6 +107,12 @@ $questions = $questionController->getByIds($questionIds);
                                                         "ID",
                                                         ['class' => 'border px-2 py-1 flex-1']
                                                     );
+                                                    renderCheckbox(
+                                                        "questions[$i][choices][$ci][correct]",
+                                                        $choice['correct'] ?? '',
+                                                        'Correct',
+                                                        ['class' => 'border px-2 py-1']
+                                                    );
                                                     ?>
                                                     <button type="button" class="remove-choice bg-red-600 text-white px-2 rounded">X</button>
                                                 </div>
@@ -185,6 +192,7 @@ $questions = $questionController->getByIds($questionIds);
                             <?php
                             renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][label]', '', 'Label', ['class' => 'border px-2 py-1 flex-1']);
                             renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][id]', '', 'ID', ['class' => 'border px-2 py-1 flex-1']);
+                            renderCheckbox('questions[__QINDEX__][choices][__CINDEX__][correct]', '', 'Correct', ['class' => 'border px-2 py-1']);
                             ?>
                             <button type="button" class="remove-choice bg-red-600 text-white px-2 rounded">X</button>
                         </div>
