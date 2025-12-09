@@ -189,6 +189,35 @@ class QuizQuestionController
         }
     }
 
+    public function getQuestionsForQuiz($quizId)
+    {
+        global $pdo;
+
+        $sql = "
+        SELECT q.*
+        FROM quiz_question qq
+        JOIN question q ON q.id = qq.question_id
+        WHERE qq.quiz_id = :quiz_id
+        ORDER BY qq.ordering ASC
+    ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':quiz_id' => $quizId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $questions = [];
+        foreach ($rows as $row) {
+            $questions[] = new Question(
+                $row['id'],
+                $row['label'],
+                $row['type'],
+                $row['details']
+            );
+        }
+
+        return $questions;
+    }
+
     public function countUsages($questionId)
     {
         global $pdo;

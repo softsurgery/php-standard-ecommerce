@@ -8,7 +8,7 @@ class Question
     private $details;
 
     // Constructor
-    function __construct($id, $label, $type, $details = [])
+    function __construct($id, $label, $type, $details)
     {
         $this->id = $id;
         $this->label = $label;
@@ -35,7 +35,7 @@ class Question
     }
 
     // Ensure $details is exposed as an array
-    protected function detailsAsArray(): array
+    function detailsAsArray(): array
     {
         // If already an array, return it
         if (is_array($this->details)) {
