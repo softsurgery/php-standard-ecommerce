@@ -6,6 +6,18 @@ html, body {
     overflow: hidden;
 }
 
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 
 .question-row {
     transition: transform 180ms ease, opacity 180ms ease;

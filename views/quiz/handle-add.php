@@ -17,8 +17,6 @@ try {
     $description = trim($_POST['description'] ?? '');
     $questionsData = $_POST['questions'] ?? [];
 
-    $questionData = array_slice($questionsData, -1);
-
     $quizCtrl = new QuizController();
     $questionCtrl = new QuestionController();
     $quizQuestionCtrl = new QuizQuestionController();
@@ -26,66 +24,108 @@ try {
     global $pdo;
     $pdo->beginTransaction();
 
-    // 1) Create the quiz
-
+    /* =========================
+       1) CREATE QUIZ
+    ========================== */
     $quiz = new Quiz(null, $name, $description);
     $quiz = $quizCtrl->save($quiz);
 
-    // 2) Create question records
-    $questionIds = [];
-
     $ordering = 0;
 
+    /* =========================
+       2) CREATE QUESTIONS
+    ========================== */
     foreach ($questionsData as $q) {
 
         $label = trim($q['label'] ?? '');
         $type  = trim($q['type'] ?? '');
+        $rate  = (int)($q['rate'] ?? 0);
 
-        if ($label === '' || $type === '') continue;
+        if ($label === '' || $type === '' || $rate <= 0) {
+            continue;
+        }
 
-        // Build details JSON
         $details = [];
 
-        // Save choices (for checkbox, radio, etc.)
-        if (isset($q['choices']) && is_array($q['choices']) && ($type == 'CHECKBOX' || $type == 'RADIO')) {
+        /* =========================
+           TEXT VALIDATION
+        ========================== */
+        if ($type === 'TEXT') {
+            $details['correct'] = trim($q['correct'] ?? '');
+        }
+
+        /* =========================
+           SWITCH VALIDATION
+        ========================== */
+        if ($type === 'SWITCH') {
+            // 'on' or 'off'
+            $details['correct'] = $q['switch']['on'] ?? 'off';
+        }
+
+        /* =========================
+           CHECKBOX / RADIO
+        ========================== */
+        if (
+            ($type === 'CHECKBOX' || $type === 'RADIO') &&
+            isset($q['choices']) &&
+            is_array($q['choices'])
+        ) {
             $choices = [];
 
             foreach ($q['choices'] as $choice) {
                 $choices[] = [
-                    'id'    => $choice['id'] ?? null,
-                    'label' => $choice['label'] ?? null,
-                    'correct' => $choice['correct'] ?? null
+                    'id'      => $choice['id'] ?? null,
+                    'label'   => $choice['label'] ?? null,
+                    'correct' => isset($choice['correct']) ? true : false
                 ];
             }
 
             $details['choices'] = $choices;
         }
 
-        // Save slider info (min/max)
-        if (isset($q['slider']) && $type === 'SLIDER') {
-            $details['min'] = $q['slider']['min'] ?? null;
-            $details['max'] = $q['slider']['max'] ?? null;
+        /* =========================
+           SLIDER VALIDATION
+        ========================== */
+        if ($type === 'SLIDER' && isset($q['slider'])) {
+
+            $min = (int)($q['slider']['min'] ?? 0);
+            $max = (int)($q['slider']['max'] ?? 100);
+
+            $validMin = (int)($q['slider']['validMin'] ?? $min);
+            $validMax = (int)($q['slider']['validMax'] ?? $max);
+
+            if ($validMin < $min || $validMax > $max || $validMin > $validMax) {
+                throw new Exception("Invalid slider validation range for question: {$label}");
+            }
+
+            $details['min'] = $min;
+            $details['max'] = $max;
+            $details['validMin'] = $validMin;
+            $details['validMax'] = $validMax;
         }
 
-        // Convert details to JSON
-        $detailsJson = json_encode($details);
-
-        // Create question
+        /* =========================
+           SAVE QUESTION
+        ========================== */
         $question = new Question(
             null,
             $label,
             $type,
-            $detailsJson
+            $rate,
+            json_encode($details)
         );
 
         $savedQuestion = $questionCtrl->save($question);
 
-        // Map quiz-question
+        /* =========================
+           MAP TO QUIZ
+        ========================== */
         $quizQuestion = new QuizQuestion(
             $quiz->getId(),
             $savedQuestion->getId(),
             $ordering
         );
+
         $quizQuestionCtrl->save($quizQuestion);
 
         $ordering++;
@@ -98,7 +138,7 @@ try {
     exit;
 } catch (Exception $e) {
 
-    if ($pdo->inTransaction()) {
+    if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();
     }
 

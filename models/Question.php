@@ -5,14 +5,16 @@ class Question
     private $id;
     private $label;
     private $type;
+    private $rate;
     private $details;
 
     // Constructor
-    function __construct($id, $label, $type, $details)
+    function __construct($id, $label, $type, $rate, $details)
     {
         $this->id = $id;
         $this->label = $label;
         $this->type = $type;
+        $this->rate = $rate;
         $this->details = $details;
     }
 
@@ -28,6 +30,10 @@ class Question
     function getType()
     {
         return $this->type;
+    }
+    function getRate()
+    {
+        return $this->rate;
     }
     function getDetails()
     {
@@ -96,6 +102,10 @@ class Question
     {
         $this->type = $type;
     }
+    function setRate($rate)
+    {
+        $this->rate = $rate;
+    }
     function setDetails($details)
     {
         $this->details = $details;
@@ -107,6 +117,7 @@ class Question
             'id' => $this->id,
             'label' => $this->label,
             'type' => $this->type,
+            'rate' => $this->rate,
             'details' => $this->details
         ];
     }

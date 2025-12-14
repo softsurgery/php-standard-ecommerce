@@ -58,8 +58,9 @@ try {
         $id    = isset($q['id']) ? (int)$q['id'] : null;
         $label = trim($q['label'] ?? '');
         $type  = trim($q['type'] ?? '');
+        $rate  = trim($q['rate'] ?? '');
 
-        if ($label === '' || $type === '') {
+        if ($label === '' || $type === '' || $rate === '') {
             continue;
         }
 
@@ -100,7 +101,7 @@ try {
 
         if ($id) {
             // Update existing question
-            $question = new Question($id, $label, $type, $detailsJson);
+            $question = new Question($id, $label, $type, $rate, $detailsJson);
             $questionCtrl->update($id, $question);
 
             $quizQuestionCtrl->updateOrdering($quizId, $id, $ordering);
@@ -108,7 +109,7 @@ try {
             $newIds[] = $id;
         } else {
             // Create new question
-            $newQuestion = new Question(null, $label, $type, $detailsJson);
+            $newQuestion = new Question(null, $label, $type, $rate, $detailsJson);
             $created = $questionCtrl->save($newQuestion);
 
             $quizQuestion = new QuizQuestion(

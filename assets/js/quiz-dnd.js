@@ -106,12 +106,22 @@ function updateExtraFields(row) {
   const extra = row.querySelector(".extra-fields");
   const choiceList = row.querySelector(".choice-list");
   const sliderFields = row.querySelector(".slider-fields");
+  const textFields = row.querySelector(".text-fields");
+  const switchFields = row.querySelector(".switch-fields");
 
-  extra?.classList.add("hidden");
+  extra?.classList.remove("hidden");
   choiceList?.classList.add("hidden");
   sliderFields?.classList.add("hidden");
+  textFields?.classList.add("hidden");
+  switchFields?.classList.add("hidden");
 
-  if (type === "CHECKBOX" || type === "RADIO") {
+  if (type === "TEXT") {
+    extra?.classList.remove("hidden");
+    textFields?.classList.remove("hidden");
+  } else if (type === "SWITCH") {
+    extra?.classList.remove("hidden");
+    switchFields?.classList.remove("hidden");
+  } else if (type === "CHECKBOX" || type === "RADIO") {
     extra?.classList.remove("hidden");
     choiceList?.classList.remove("hidden");
   } else if (type === "SLIDER") {

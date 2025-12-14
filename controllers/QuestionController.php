@@ -60,13 +60,14 @@ class QuestionController
     public function save($question)
     {
         global $pdo;
-        $sql = "INSERT INTO `question` (label, type, details)
-                VALUES (:label, :type, :details)";
+        $sql = "INSERT INTO `question` (label, type, rate, details)
+                VALUES (:label, :type, :rate, :details)";
         try {
             $query = $pdo->prepare($sql);
             $query->execute([
                 ':label' => $question->getLabel(),
                 ':type' => $question->getType(),
+                ':rate' => $question->getRate(),
                 ':details' => $question->getDetails()
             ]);
 
@@ -95,7 +96,7 @@ class QuestionController
     {
         global $pdo;
         $sql = "UPDATE `question` 
-                SET label = :label, type = :type, details = :details
+                SET label = :label, type = :type, rate = :rate, details = :details
                 WHERE id = :id";
         try {
             $query = $pdo->prepare($sql);
@@ -103,6 +104,7 @@ class QuestionController
                 ':id' => $id,
                 ':label' => $question->getLabel(),
                 ':type' => $question->getType(),
+                ':rate' => $question->getRate(),
                 ':details' => $question->getDetails()
             ]);
 
@@ -127,6 +129,7 @@ class QuestionController
                     $data['id'],
                     $data['label'],
                     $data['type'],
+                    $data['rate'],
                     $data['details']
                 );
             }
@@ -167,6 +170,7 @@ class QuestionController
                     $row['id'],
                     $row['label'],
                     $row['type'],
+                    $row['rate'],
                     $row['details']
                 );
             }

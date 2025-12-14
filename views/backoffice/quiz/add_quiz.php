@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../../shared/getHeader.php';
 require_once __DIR__ . '/../../shared/ui/input.php';
 require_once __DIR__ . '/../../shared/ui/checkbox.php';
+require_once __DIR__ . '/../../shared/ui/radio.php';
 require_once __DIR__ . '/../../shared/ui/textarea.php';
 require_once __DIR__ . '/../../shared/ui/select.php';
 require_once __DIR__ . '/../../shared/ui/label.php';
@@ -45,13 +46,14 @@ echo getPageHead('Page', '../../..');
                     </div>
 
                     <!-- Questions container (existing questions will be here) -->
-                    <div id="questions-container" class="mt-4 p-4 border rounded-lg bg-gray-100">
+                    <div id="questions-container" class="mt-4 p-4 bg-gray-100 border rounded">
                         <?php
                         // Example: Prepopulate with 1 question (replace with DB data)
                         $questions = [
                             [
                                 'label' => '',
                                 'type'  => 'TEXT',
+                                'correct' => '',
                                 'choices' => [],
                                 'slider' => ['min' => 0, 'max' => 100]
                             ]
@@ -64,7 +66,7 @@ echo getPageHead('Page', '../../..');
                                 <div class="flex flex-row gap-2">
 
                                     <!-- Question Label -->
-                                    <div class="w-1/2">
+                                    <div class="w-3/6">
                                         <?php
                                         renderLabel("questions[$i][label]", "Question Label");
                                         renderInput("text", "questions[$i][label]", $q['label'] ?? '', "Enter question label");
@@ -72,7 +74,7 @@ echo getPageHead('Page', '../../..');
                                     </div>
 
                                     <!-- Question Type -->
-                                    <div class="w-1/2">
+                                    <div class="w-2/6">
                                         <?php
                                         renderLabel("questions[$i][type]", "Question Type");
                                         renderSelect(
@@ -89,10 +91,41 @@ echo getPageHead('Page', '../../..');
                                         ?>
                                     </div>
 
+                                    <!-- Question Rate -->
+                                    <div class="w-1/6">
+                                        <?php
+                                        renderLabel("questions[$i][rate]", "Question Rate");
+                                        renderInput("number", "questions[$i][rate]", $q['rate'] ?? 1, "Rate", ['min' => '1', 'max' => '100']);
+                                        ?>
+                                    </div>
+
                                 </div>
 
                                 <!-- EXTRA FIELDS WRAPPER -->
-                                <div class="extra-fields mt-3 <?= ($q['type'] === 'CHECKBOX' || $q['type'] === 'RADIO' || $q['type'] === 'SLIDER') ? '' : 'hidden' ?>">
+                                <div class="extra-fields hidden mt-3">
+
+                                    <!-- CORRECT ANSWER (TEXT) -->
+                                    <div class="text-fields mt-3 p-3 bg-gray-200 border rounded <?= ($q['type'] === 'TEXT') ? '' : 'hidden' ?>">
+                                        <?php
+                                        renderLabel("questions[$i][correct]", "Correct answer");
+                                        renderInput(
+                                            'text',
+                                            "questions[$i][correct]",
+                                            $q['correct'] ?? '',
+                                            'Correct answer',
+                                            ['class' => 'border px-2 py-1 flex-1']
+                                        );
+                                        ?>
+                                    </div>
+
+                                    <!-- SWITCH FIELDS -->
+                                    <div class="switch-fields mt-3 p-3 bg-gray-200 border rounded <?= ($q['type'] === 'SWITCH') ? '' : 'hidden' ?>">
+                                        <?php
+                                        renderLabel("questions[$i][switch][on]", "Correct Answer");
+                                        renderRadio("questions[$i][switch][on]", 'on', true, "Yes");
+                                        renderRadio("questions[$i][switch][on]", 'off', false, "No");
+                                        ?>
+                                    </div>
 
                                     <!-- CHOICE LIST (CHECKBOX / RADIO) -->
                                     <div class="choice-list mt-3 p-3 bg-gray-200 border rounded <?= ($q['type'] === 'CHECKBOX' || $q['type'] === 'RADIO') ? '' : 'hidden' ?>">
@@ -145,14 +178,36 @@ echo getPageHead('Page', '../../..');
                                     <!-- SLIDER FIELDS -->
                                     <div class="slider-fields mt-3 p-3 bg-gray-200 border rounded <?= ($q['type'] === 'SLIDER') ? '' : 'hidden' ?>">
 
-                                        <?php
-                                        renderLabel("questions[$i][slider][min]", "Min Value");
-                                        renderInput("number", "questions[$i][slider][min]", $q['slider']['min'] ?? 0);
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex flex-row flex-1 gap-2">
+                                                <div class="flex-1">
+                                                    <?php
+                                                    renderLabel("questions[$i][slider][min]", "Min Value");
+                                                    renderInput("number", "questions[$i][slider][min]", $q['slider']['min'] ?? 0);
+                                                    ?>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <?php
+                                                    renderLabel("questions[$i][slider][max]", "Max Value");
+                                                    renderInput("number", "questions[$i][slider][max]", $q['slider']['max'] ?? 100);
+                                                    ?>
+                                                </div>
+                                            </div>
+                                            <?php
+                                            ?>
+                                            <div class="flex flex-col gap-2">
+                                                <?php
+                                                renderLabel("", "Correct range");
+                                                ?>
+                                                <div class="flex flex-row flex-1 gap-2">
+                                                    <?php
+                                                    renderInput("number", "questions[$i][slider][validMin]", $q['slider']['validMin'] ?? 0);
+                                                    renderInput("number", "questions[$i][slider][validMax]", $q['slider']['validMax'] ?? 100);
+                                                    ?>
+                                                </div>
+                                            </div>
 
-                                        renderLabel("questions[$i][slider][max]", "Max Value");
-                                        renderInput("number", "questions[$i][slider][max]", $q['slider']['max'] ?? 100);
-                                        ?>
-
+                                        </div>
                                     </div>
 
                                 </div>
@@ -174,14 +229,14 @@ echo getPageHead('Page', '../../..');
 
                             <div class="flex flex-row gap-2">
 
-                                <div class="w-1/2">
+                                <div class="w-3/6">
                                     <?php
                                     renderLabel('questions[__INDEX__][label]', 'Question Label');
                                     renderInput('text', 'questions[__INDEX__][label]', '', 'Enter question label');
                                     ?>
                                 </div>
 
-                                <div class="w-1/2">
+                                <div class="w-2/6">
                                     <?php
                                     renderLabel('questions[__INDEX__][type]', 'Question Type');
                                     renderSelect(
@@ -198,10 +253,40 @@ echo getPageHead('Page', '../../..');
                                     ?>
                                 </div>
 
+                                <div class="w-1/6">
+                                    <?php
+                                    renderLabel('questions[__INDEX__][rate]', 'Question Rate');
+                                    renderInput('number', 'questions[__INDEX__][rate]', 1, 'Rate', ['min' => '1', 'max' => '100']);
+                                    ?>
+                                </div>
+
                             </div>
 
                             <!-- EXTRA FIELDS SECTION -->
                             <div class="extra-fields hidden mt-3">
+
+                                <!-- CORRECT ANSWER (TEXT) -->
+                                <div class="text-fields mt-3 p-3 bg-gray-200 border rounded">
+                                    <?php
+                                    renderLabel("questions[__INDEX__][correct]", "Correct answer");
+                                    renderInput(
+                                        'text',
+                                        "questions[__INDEX__][correct]",
+                                        '',
+                                        'Correct answer',
+                                        ['class' => 'border px-2 py-1 flex-1']
+                                    );
+                                    ?>
+                                </div>
+
+                                <!-- SWITCH FIELDS -->
+                                <div class="switch-fields mt-3 p-3 bg-gray-200 border rounded">
+                                    <?php
+                                    renderLabel("questions[__INDEX__][switch][on]", "Correct Answer");
+                                    renderRadio("questions[__INDEX__][switch][on]", 'on', true, "Yes");
+                                    renderRadio("questions[__INDEX__][switch][on]", 'off', false, "No");
+                                    ?>
+                                </div>
 
                                 <!-- CHOICE LIST (CHECKBOX / RADIO) -->
                                 <div class="choice-list hidden mt-2 p-3 bg-gray-200 border rounded">
@@ -219,15 +304,38 @@ echo getPageHead('Page', '../../..');
                                 </div>
 
                                 <!-- SLIDER FIELDS -->
-                                <div class="slider-fields hidden mt-2 p-3 bg-gray-200 border rounded">
+                                <div class="slider-fields mt-3 p-3 bg-gray-200 border rounded">
 
-                                    <?php
-                                    renderLabel('questions[__INDEX__][slider][min]', 'Min Value');
-                                    renderInput('number', 'questions[__INDEX__][slider][min]', 0);
-                                    renderLabel('questions[__INDEX__][slider][max]', 'Max Value');
-                                    renderInput('number', 'questions[__INDEX__][slider][max]', 100);
-                                    ?>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex flex-row flex-1 gap-2">
+                                            <div class="flex-1">
+                                                <?php
+                                                renderLabel("questions[__INDEX__][slider][min]", "Min Value");
+                                                renderInput("number", "questions[__INDEX__][slider][min]", 0);
+                                                ?>
+                                            </div>
+                                            <div class="flex-1">
+                                                <?php
+                                                renderLabel("questions[__INDEX__][slider][max]", "Max Value");
+                                                renderInput("number", "questions[__INDEX__][slider][max]", 100);
+                                                ?>
+                                            </div>
+                                        </div>
+                                        <?php
+                                        ?>
+                                        <div class="flex flex-col gap-2">
+                                            <?php
+                                            renderLabel("", "Correct range");
+                                            ?>
+                                            <div class="flex flex-row flex-1 gap-2">
+                                                <?php
+                                                renderInput("number", "questions[__INDEX__][slider][validMin]",  0);
+                                                renderInput("number", "questions[__INDEX__][slider][validMax]", 100);
+                                                ?>
+                                            </div>
+                                        </div>
 
+                                    </div>
                                 </div>
 
                             </div>
