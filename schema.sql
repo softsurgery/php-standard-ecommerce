@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : dim. 14 déc. 2025 à 14:23
+-- Généré le : mer. 17 déc. 2025 à 22:29
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -59,11 +59,12 @@ CREATE TABLE `question` (
 --
 
 INSERT INTO `question` (`id`, `label`, `type`, `details`, `rate`) VALUES
-(24, 'Aliqua Reprehenderi', 'SWITCH', '{\"correct\":\"on\"}', 95),
-(25, 'Quia culpa ut incid', 'SWITCH', '{\"correct\":\"off\"}', 58),
-(26, 'Consequuntur quae el', 'TEXT', '{\"correct\":\"Quis expedita obcaec\"}', 26),
+(24, 'Aliqua Reprehenderi', 'SLIDER', '{\"min\":20,\"max\":100,\"validMin\":50,\"validMax\":70}', 95),
+(25, 'Quia culpa ut incid', 'SWITCH', '{\"correct\":\"on\"}', 58),
+(26, 'Consequuntur quae el', 'TEXT', '{\"correct\":\"125\"}', 26),
 (27, 'Autem veniam soluta', 'RADIO', '{\"choices\":[{\"id\":\"Nihil cumque numquam\",\"label\":\"Pariatur Ad ea itaq\",\"correct\":false},{\"id\":\"Voluptatem animi di\",\"label\":\"Voluptatem iusto ni\",\"correct\":true},{\"id\":\"Amet architecto nec\",\"label\":\"Delectus deserunt a\",\"correct\":false},{\"id\":\"Quos ad esse adipisc\",\"label\":\"Cillum ad non aut qu\",\"correct\":true}]}', 71),
-(28, 'Ex expedita nisi dol', 'RADIO', '{\"choices\":[{\"id\":\"Libero et non aut ip\",\"label\":\"Anim a nostrum quasi\",\"correct\":true},{\"id\":\"Eos fugit beatae f\",\"label\":\"Voluptatem nisi moll\",\"correct\":true},{\"id\":\"Est deserunt incidi\",\"label\":\"Est commodo praesen\",\"correct\":true},{\"id\":\"Sed Nam nisi sint mo\",\"label\":\"Ut voluptas tempore\",\"correct\":false}]}', 70);
+(28, 'Ex expedita nisi dol', 'CHECKBOX', '{\"choices\":[{\"id\":\"Libero et non aut ip\",\"label\":\"Anim a nostrum quasi\",\"correct\":true},{\"id\":\"Eos fugit beatae f\",\"label\":\"Voluptatem nisi moll\",\"correct\":true},{\"id\":\"Est deserunt incidi\",\"label\":\"Est commodo praesen\",\"correct\":true},{\"id\":\"Sed Nam nisi sint mo\",\"label\":\"Ut voluptas tempore\",\"correct\":false}]}', 70),
+(29, 'Obcaecati facere sed', 'SLIDER', '{\"min\":5,\"max\":700,\"validMin\":10,\"validMax\":50}', 50);
 
 -- --------------------------------------------------------
 
@@ -82,7 +83,8 @@ CREATE TABLE `quiz` (
 --
 
 INSERT INTO `quiz` (`id`, `name`, `description`) VALUES
-(11, 'Brady Gould', 'Autem in ea veniam');
+(11, 'Brady Gould', 'Autem in ea veniam'),
+(12, 'Otto Murray', 'Nihil rerum temporib');
 
 -- --------------------------------------------------------
 
@@ -105,7 +107,8 @@ INSERT INTO `quiz_question` (`question_id`, `quiz_id`, `ordering`) VALUES
 (25, 11, 1),
 (26, 11, 2),
 (27, 11, 3),
-(28, 11, 4);
+(28, 11, 4),
+(29, 12, 0);
 
 -- --------------------------------------------------------
 
@@ -116,9 +119,18 @@ INSERT INTO `quiz_question` (`question_id`, `quiz_id`, `ordering`) VALUES
 CREATE TABLE `submission` (
   `quiz_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `score` int(11) NOT NULL,
   `answers` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`answers`)),
   `createdAt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `submission`
+--
+
+INSERT INTO `submission` (`quiz_id`, `user_id`, `score`, `answers`, `createdAt`) VALUES
+(11, 3, 166, '{\"24\":\"68\",\"26\":\"Quam dignissimos mai\",\"27\":\"Voluptatem animi di\",\"28\":[\"Libero et non aut ip\",\"Eos fugit beatae f\",\"Est deserunt incidi\",\"Sed Nam nisi sint mo\"]}', '2025-12-17 22:28:45'),
+(12, 3, 50, '{\"29\":\"27\"}', '2025-12-17 22:22:38');
 
 -- --------------------------------------------------------
 
@@ -177,6 +189,7 @@ ALTER TABLE `quiz_question`
 -- Index pour la table `submission`
 --
 ALTER TABLE `submission`
+  ADD PRIMARY KEY (`quiz_id`,`user_id`),
   ADD KEY `quiz_id` (`quiz_id`),
   ADD KEY `user_id` (`user_id`);
 
@@ -200,13 +213,13 @@ ALTER TABLE `product-category`
 -- AUTO_INCREMENT pour la table `question`
 --
 ALTER TABLE `question`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT pour la table `quiz`
 --
 ALTER TABLE `quiz`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT pour la table `users`
