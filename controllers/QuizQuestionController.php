@@ -211,6 +211,7 @@ class QuizQuestionController
                 $row['id'],
                 $row['label'],
                 $row['type'],
+                $row['rate'],
                 $row['details']
             );
         }

@@ -13,6 +13,10 @@ function getBackofficeSidebar($root = "", $active = "")
             "label" => "Quiz",
             "link"  => "$root/views/backoffice/quiz/quiz-portal.php"
         ],
+        "submissions" => [
+            "label" => "Submissions",
+            "link"  => "$root/views/backoffice/submissions/submission-portal.php"
+        ],
         "reports" => [
             "label" => "Reports",
             "link"  => "#"

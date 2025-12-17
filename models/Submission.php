@@ -4,14 +4,16 @@ class Submission
 {
     private $quiz_id;
     private $user_id;
+    private $score;
     private $answers;
     private $createdAt;
 
     // Constructor
-    function __construct($quiz_id, $user_id, $answers, $createdAt)
+    function __construct($quiz_id, $user_id, $score, $answers, $createdAt)
     {
         $this->quiz_id   = $quiz_id;
         $this->user_id   = $user_id;
+        $this->score     = $score;
         $this->answers   = $answers;
         $this->createdAt = $createdAt;
     }
@@ -25,6 +27,11 @@ class Submission
     function getUserId()
     {
         return $this->user_id;
+    }
+
+    function getScore()
+    {
+        return $this->score;
     }
 
     function getAnswers()
@@ -48,6 +55,11 @@ class Submission
         $this->user_id = $user_id;
     }
 
+    function setScore($score)
+    {
+        $this->score = $score;
+    }
+
     function setAnswers($answers)
     {
         $this->answers = $answers;
@@ -63,6 +75,7 @@ class Submission
         return [
             'quiz_id'   => $this->quiz_id,
             'user_id'   => $this->user_id,
+            'score'     => $this->score,
             'answers'   => json_decode($this->answers, true),
             'createdAt' => $this->createdAt
         ];

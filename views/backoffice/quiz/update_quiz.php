@@ -179,7 +179,148 @@ $questions = $questionController->getByIds($questionIds);
                         <?php endforeach; ?>
                     </div>
 
+                    <!-- Hidden template: note __INDEX__ placeholders -->
+                    <div id="question-template" class="hidden">
+                        <div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">
+
+                            <div class="flex flex-row gap-2">
+
+                                <div class="w-3/6">
+                                    <?php
+                                    renderLabel('questions[__INDEX__][label]', 'Question Label');
+                                    renderInput('text', 'questions[__INDEX__][label]', '', 'Enter question label');
+                                    ?>
+                                </div>
+
+                                <div class="w-2/6">
+                                    <?php
+                                    renderLabel('questions[__INDEX__][type]', 'Question Type');
+                                    renderSelect(
+                                        'questions[__INDEX__][type]',
+                                        [
+                                            (object)['id' => 'TEXT', 'label' => 'Text'],
+                                            (object)['id' => 'SWITCH', 'label' => 'Switch'],
+                                            (object)['id' => 'CHECKBOX', 'label' => 'Checkbox'],
+                                            (object)['id' => 'RADIO',   'label' => 'Radio'],
+                                            (object)['id' => 'SLIDER',  'label' => 'Slider'],
+                                        ],
+                                        null
+                                    );
+                                    ?>
+                                </div>
+
+                                <div class="w-1/6">
+                                    <?php
+                                    renderLabel('questions[__INDEX__][rate]', 'Question Rate');
+                                    renderInput('number', 'questions[__INDEX__][rate]', 1, 'Rate', ['min' => '1', 'max' => '100']);
+                                    ?>
+                                </div>
+
+                            </div>
+
+                            <!-- EXTRA FIELDS SECTION -->
+                            <div class="extra-fields hidden mt-3">
+
+                                <!-- CORRECT ANSWER (TEXT) -->
+                                <div class="text-fields mt-3 p-3 bg-gray-200 border rounded">
+                                    <?php
+                                    renderLabel("questions[__INDEX__][correct]", "Correct answer");
+                                    renderInput(
+                                        'text',
+                                        "questions[__INDEX__][correct]",
+                                        '',
+                                        'Correct answer',
+                                        ['class' => 'border px-2 py-1 flex-1']
+                                    );
+                                    ?>
+                                </div>
+
+                                <!-- SWITCH FIELDS -->
+                                <div class="switch-fields mt-3 p-3 bg-gray-200 border rounded">
+                                    <?php
+                                    renderLabel("questions[__INDEX__][switch][on]", "Correct Answer");
+                                    renderRadio("questions[__INDEX__][switch][on]", 'on', true, "Yes");
+                                    renderRadio("questions[__INDEX__][switch][on]", 'off', false, "No");
+                                    ?>
+                                </div>
+
+                                <!-- CHOICE LIST (CHECKBOX / RADIO) -->
+                                <div class="choice-list hidden mt-2 p-3 bg-gray-200 border rounded">
+
+                                    <h4 class="font-semibold mb-2">Choices</h4>
+                                    <div class="choices-container">
+
+                                    </div>
+
+                                    <button type="button"
+                                        class="add-choice px-3 py-1 bg-blue-600 text-white rounded mt-2 hover:bg-blue-500">
+                                        Add Choice
+                                    </button>
+
+                                </div>
+
+                                <!-- SLIDER FIELDS -->
+                                <div class="slider-fields mt-3 p-3 bg-gray-200 border rounded">
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex flex-row flex-1 gap-2">
+                                            <div class="flex-1">
+                                                <?php
+                                                renderLabel("questions[__INDEX__][slider][min]", "Min Value");
+                                                renderInput("number", "questions[__INDEX__][slider][min]", 0);
+                                                ?>
+                                            </div>
+                                            <div class="flex-1">
+                                                <?php
+                                                renderLabel("questions[__INDEX__][slider][max]", "Max Value");
+                                                renderInput("number", "questions[__INDEX__][slider][max]", 100);
+                                                ?>
+                                            </div>
+                                        </div>
+                                        <?php
+                                        ?>
+                                        <div class="flex flex-col gap-2">
+                                            <?php
+                                            renderLabel("", "Correct range");
+                                            ?>
+                                            <div class="flex flex-row flex-1 gap-2">
+                                                <?php
+                                                renderInput("number", "questions[__INDEX__][slider][validMin]",  0);
+                                                renderInput("number", "questions[__INDEX__][slider][validMax]", 100);
+                                                ?>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <button type="button"
+                                class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-3">
+                                Delete
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- Hidden choice template -->
+                    <div id="choice-template" class="hidden">
+                        <div class="choice flex gap-2 mb-2">
+                            <?php
+                            renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][label]', '', 'Label', ['class' => 'border px-2 py-1 flex-1']);
+                            renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][id]', '', 'ID', ['class' => 'border px-2 py-1 flex-1']);
+                            renderCheckbox('questions[__QINDEX__][choices][__CINDEX__][correct]', '', 'Correct', ['class' => 'border px-2 py-1']);
+                            ?>
+                            <button type="button" class="remove-choice bg-red-600 text-white px-2 rounded">X</button>
+                        </div>
+                    </div>
+
+
                     <div class="flex gap-3 mt-4">
+                        <button type="button" id="add-question" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
+                            Add Question
+                        </button>
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
                             Update Quiz
                         </button>

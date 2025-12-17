@@ -59,7 +59,7 @@ $questions = $quizQuestionCtrl->getQuestionsForQuiz($quizId);
 
                 <div class="mb-6 p-4 bg-gray-50 border rounded">
                     <h3 class="font-semibold mb-2">
-                        <?= ($i + 1) . ". " . htmlspecialchars($q->getLabel()) ?>
+                        <?= ($i + 1) . ". " . htmlspecialchars($q->getLabel()) . " (" . htmlspecialchars($q->getRate()) . ")" ?>
                     </h3>
 
                     <!-- TEXT QUESTION -->
